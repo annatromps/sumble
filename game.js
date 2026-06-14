@@ -45,7 +45,26 @@ function generatePuzzle(rng) {
     { val: smallCopy[3], type: 'small' },
   ];
 
-  const target = 101 + Math.floor(rng() * 899);
+  const vals = chosen.map(t => t.val);
+
+  // Find a target that's exactly solvable and requires at least 2 steps.
+  // Try up to 100 candidates; fall back to any exactly-solvable target.
+  let target = null;
+  let fallback = null;
+
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const candidate = 101 + Math.floor(rng() * 899);
+    const sol = solve(vals, candidate);
+    if (sol && sol.val === candidate) {
+      if (fallback === null) fallback = candidate;
+      if (sol.steps.length >= 2) {
+        target = candidate;
+        break;
+      }
+    }
+  }
+
+  if (target === null) target = fallback ?? (101 + Math.floor(rng() * 899));
   return { tiles: chosen, target };
 }
 
