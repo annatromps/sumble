@@ -367,6 +367,7 @@ h1 span { color: var(--accent); }
 
 .steps-log .step-line { color: var(--text); }
 .steps-log .step-line span { color: var(--accent); }
+.steps-log .hint-step { color: #b07d10; font-style: italic; }
 
 /* ── Action buttons ── */
 .action-row {
@@ -403,6 +404,10 @@ h1 span { color: var(--accent); }
 
 .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
 .btn-danger:hover { background: rgba(214,63,90,0.08); }
+
+.btn-hint { background: transparent; color: #b07d10; border-color: #e8c96a; font-size: 11px; }
+.btn-hint:hover { background: rgba(230,180,30,0.1); border-color: #c9a830; }
+.btn-hint:disabled { opacity: 0.35; cursor: default; }
 
 /* ── Start screen ── */
 .start-screen {

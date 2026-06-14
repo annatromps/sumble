@@ -218,9 +218,11 @@ function renderStreakBar(streak, best) {
 }
 
 // ── Scoring ──
-function calcScore(diff, timeTaken) {
-  if (diff === 0) return Math.max(700, 1000 - Math.floor(timeTaken) * 10);
-  return Math.max(0, 500 - diff * 5);
+function calcScore(diff, timeTaken, hints = 0) {
+  const base = diff === 0
+    ? Math.max(700, 1000 - Math.floor(timeTaken) * 10)
+    : Math.max(0, 500 - diff * 5);
+  return Math.max(0, base - hints * HINT_PENALTY);
 }
 
 // ── Game state ──
@@ -231,6 +233,10 @@ let todayKey;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
 let countdownResult = null; // locked-in countdown score, preserved if player continues in free
+let hintSolution = null;   // steps array from solver, used for hint reveals
+let hintsUsed = 0;
+const MAX_HINTS = 3;
+const HINT_PENALTY = 100;
 
 function setMode(mode) {
   if (modeLocked) return;
@@ -268,6 +274,9 @@ function init() {
   timeLeft = 30;
   modeLocked = false;
   countdownResult = null;
+  hintsUsed = 0;
+  const solForHints = solve(puzzle.tiles.map(t => t.val), puzzle.target);
+  hintSolution = (solForHints && solForHints.val === puzzle.target) ? solForHints.steps : null;
 
   const dateStr = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -586,9 +595,38 @@ function clearWorking() {
   document.getElementById('applyBtn').disabled = true;
 }
 
+function getHint() {
+  if (gameOver) return;
+  if (!hintSolution) { showToast('No hint available'); return; }
+  if (hintsUsed >= MAX_HINTS) { showToast('No more hints'); return; }
+
+  const step = hintSolution[hintsUsed];
+  if (!step) { showToast('No more hints'); return; }
+
+  hintsUsed++;
+  updateHintBtn();
+
+  // Show the hint as a toast and also append to steps log
+  showToast(`Hint ${hintsUsed}: ${step}`, 4000);
+  const log = document.getElementById('stepsLog');
+  const hint = document.createElement('div');
+  hint.className = 'step-line hint-step';
+  hint.textContent = `💡 ${step}`;
+  log.appendChild(hint);
+}
+
+function updateHintBtn() {
+  const btn = document.getElementById('hintBtn');
+  if (!btn) return;
+  const remaining = MAX_HINTS - hintsUsed;
+  btn.textContent = remaining > 0 ? `💡 Hint (${remaining})` : '💡 No hints left';
+  btn.disabled = remaining === 0 || gameOver || !hintSolution;
+}
+
 function submitAnswer() {
   clearInterval(timerInterval);
   gameOver = true;
+  updateHintBtn();
 
   const closest = currentNums.reduce((best, n) =>
     Math.abs(n.val - puzzle.target) < Math.abs(best.val - puzzle.target) ? n : best,
@@ -602,10 +640,10 @@ function submitAnswer() {
   // Save to history
   recordResult(todayKey, diff, grid);
 
-  showResult(closest.val, diff, timeTaken, grid);
+  showResult(closest.val, diff, timeTaken, grid, hintsUsed);
 }
 
-function showResult(playerBest, diff, timeTaken, grid) {
+function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   const headline = document.getElementById('resultHeadline');
   const scoreEl  = document.getElementById('resultScore');
   const ptsEl    = document.getElementById('resultPts');
@@ -637,7 +675,9 @@ function showResult(playerBest, diff, timeTaken, grid) {
   scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
   scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText;
-  ptsEl.textContent = isCountdown ? `${calcScore(diff, timeTaken)} pts` : '';
+  const pts = calcScore(diff, timeTaken, hints);
+  const hintNote = hints > 0 ? ` (${hints} hint${hints > 1 ? 's' : ''})` : '';
+  ptsEl.textContent = isCountdown ? `${pts} pts${hintNote}` : (hints > 0 ? `${hints} hint${hints > 1 ? 's' : ''} used` : '');
 
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
@@ -659,7 +699,7 @@ function showResult(playerBest, diff, timeTaken, grid) {
   document.getElementById('continueBtn').style.display = canContinue ? '' : 'none';
 
   // Lock in the countdown result the first time (before any free-mode continuation)
-  const result = { diff, target: puzzle.target, playerBest, steps: [...steps], timeTaken, grid, mode: gameMode };
+  const result = { diff, target: puzzle.target, playerBest, steps: [...steps], timeTaken, grid, mode: gameMode, hints };
   window._lastResult = result;
   if (gameMode === 'countdown' && !countdownResult) countdownResult = result;
 
@@ -669,6 +709,7 @@ function showResult(playerBest, diff, timeTaken, grid) {
 function continueInFree() {
   gameMode = 'free';
   gameOver = false;
+  updateHintBtn();
   expr = [];
   document.getElementById('continueBtn').style.display = 'none';
   document.getElementById('timerBarWrap').style.display = 'none';
@@ -706,13 +747,14 @@ function shareResult() {
     ].join('\n');
   } else {
     // Countdown result (possibly after continuing in free)
-    const pts = calcScore(shareR.diff, shareR.timeTaken);
+    const pts = calcScore(shareR.diff, shareR.timeTaken, shareR.hints || 0);
+    const hintTag = shareR.hints > 0 ? ` 💡×${shareR.hints}` : '';
     let resultLine;
     if (shareR.diff === 0) {
       const timeStr = shareR.timeTaken <= 30 ? `${shareR.timeTaken}s` : `+${shareR.timeTaken - 30}s overtime`;
-      resultLine = `✅ ${shareR.target} in ${timeStr} (${pts} pts)`;
+      resultLine = `✅ ${shareR.target} in ${timeStr} (${pts} pts)${hintTag}`;
     } else {
-      resultLine = `❌ ${shareR.diff} away (${pts} pts)`;
+      resultLine = `❌ ${shareR.diff} away (${pts} pts)${hintTag}`;
     }
     const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
     text = [
@@ -728,11 +770,11 @@ function shareResult() {
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 }
 
-function showToast(msg) {
+function showToast(msg, duration = 2000) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(() => t.classList.remove('show'), duration);
 }
 
 // ── How-to-play modal ──
