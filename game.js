@@ -312,6 +312,8 @@ function startGame() {
   showView('game');
   document.getElementById('timerBarWrap').style.display =
     gameMode === 'countdown' ? '' : 'none';
+  document.getElementById('pauseBtn').style.display =
+    gameMode === 'countdown' ? '' : 'none';
   if (gameMode === 'countdown') startTimer();
 }
 
@@ -627,6 +629,8 @@ function submitAnswer() {
   clearInterval(timerInterval);
   gameOver = true;
   updateHintBtn();
+  document.getElementById('pauseBtn').style.display = 'none';
+  document.getElementById('pauseModal').classList.remove('open');
 
   const closest = currentNums.reduce((best, n) =>
     Math.abs(n.val - puzzle.target) < Math.abs(best.val - puzzle.target) ? n : best,
@@ -777,6 +781,26 @@ function showToast(msg, duration = 2000) {
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
+// ── Pause ──
+let paused = false;
+
+function pauseGame() {
+  if (gameOver || gameMode !== 'countdown') return;
+  paused = true;
+  clearInterval(timerInterval);
+  document.getElementById('gameView').style.visibility = 'hidden';
+  document.getElementById('targetArea').style.visibility = 'hidden';
+  document.getElementById('pauseModal').classList.add('open');
+}
+
+function resumeGame() {
+  paused = false;
+  document.getElementById('pauseModal').classList.remove('open');
+  document.getElementById('gameView').style.visibility = '';
+  document.getElementById('targetArea').style.visibility = '';
+  if (!gameOver && gameMode === 'countdown') startTimer();
+}
+
 // ── How-to-play modal ──
 function openHowTo() {
   document.getElementById('howToModal').classList.add('open');
@@ -787,7 +811,10 @@ function closeHowTo() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeHowTo();
+  if (e.key === 'Escape') {
+    closeHowTo();
+    if (paused) resumeGame();
+  }
 });
 
 init();

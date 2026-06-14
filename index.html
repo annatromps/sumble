@@ -69,7 +69,10 @@
   <div class="timer-bar-wrap" id="timerBarWrap">
     <div class="timer-label">
       <span>Time</span>
-      <span id="timerCount">30</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="timerCount">30</span>
+        <button class="pause-btn" id="pauseBtn" onclick="pauseGame()" aria-label="Pause">⏸</button>
+      </div>
     </div>
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
   </div>
@@ -122,6 +125,18 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ── Pause modal ── -->
+<div class="modal-overlay" id="pauseModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Paused">
+    <div style="text-align:center;padding:16px 0 8px">
+      <div style="font-size:48px;margin-bottom:16px">⏸</div>
+      <div class="modal-title" style="margin-bottom:8px">Paused</div>
+      <div style="font-size:14px;color:var(--muted);font-weight:500;margin-bottom:28px">The clock is stopped. The puzzle is hidden.</div>
+      <button class="btn btn-primary" onclick="resumeGame()" style="width:100%;font-size:15px;padding:14px">▶ Resume</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── How-to-play modal ── -->
 <div class="modal-overlay" id="howToModal" onclick="if(event.target===this)closeHowTo()">
