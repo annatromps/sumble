@@ -228,7 +228,7 @@ function calcScore(diff, timeTaken, hints = 0) {
 // ── Game state ──
 let puzzle, tiles, steps, currentNums;
 let expr = []; // [{type:'num', val, id} | {type:'op', sym}]
-let timerInterval, timeLeft, gameOver;
+let timerInterval, timeLeft, freeTimeElapsed, gameOver;
 let todayKey;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
@@ -272,6 +272,7 @@ function init() {
   expr = [];
   gameOver = false;
   timeLeft = 30;
+  freeTimeElapsed = 0;
   modeLocked = false;
   countdownResult = null;
   hintsUsed = 0;
@@ -310,11 +311,15 @@ function init() {
 
 function startGame() {
   showView('game');
-  document.getElementById('timerBarWrap').style.display =
-    gameMode === 'countdown' ? '' : 'none';
+  document.getElementById('timerBarWrap').style.display = '';
+  document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
   document.getElementById('pauseBtn').style.display =
     gameMode === 'countdown' ? '' : 'none';
-  if (gameMode === 'countdown') startTimer();
+  if (gameMode === 'countdown') {
+    startTimer();
+  } else {
+    startFreeTimer();
+  }
 }
 
 function restoreTodayResult(diff, storedGrid) {
@@ -367,6 +372,26 @@ function startTimer() {
     timeLeft--;
     updateTimerUI();
   }, 1000);
+}
+
+function startFreeTimer() {
+  clearInterval(timerInterval);
+  freeTimeElapsed = 0;
+  updateFreeTimerUI();
+  timerInterval = setInterval(() => {
+    freeTimeElapsed++;
+    updateFreeTimerUI();
+  }, 1000);
+}
+
+function updateFreeTimerUI() {
+  const count = document.getElementById('timerCount');
+  const label = document.querySelector('.timer-label span:first-child');
+  const mins = Math.floor(freeTimeElapsed / 60);
+  const secs = String(freeTimeElapsed % 60).padStart(2, '0');
+  count.textContent = mins > 0 ? `${mins}:${secs}` : `${freeTimeElapsed}s`;
+  count.style.color = '';
+  label.textContent = 'Time';
 }
 
 function updateTimerUI() {
@@ -637,7 +662,7 @@ function submitAnswer() {
     currentNums[0]
   );
   const diff = Math.abs(closest.val - puzzle.target);
-  const timeTaken = gameMode === 'countdown' ? 30 - timeLeft : null;
+  const timeTaken = gameMode === 'countdown' ? 30 - timeLeft : freeTimeElapsed;
 
   const grid = gameMode === 'countdown' ? buildShareGrid(diff, timeTaken) : null;
 
@@ -656,23 +681,29 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   const solDiv   = document.getElementById('resultSolution');
 
   const isCountdown = gameMode === 'countdown';
-  const timeStr = timeTaken != null
-    ? (timeTaken <= 30 ? ` in ${timeTaken}s` : ` (+${timeTaken - 30}s overtime)`)
-    : '';
+  const fmtTime = (t) => {
+    if (t == null) return '';
+    if (!isCountdown) {
+      const m = Math.floor(t / 60), s = t % 60;
+      return m > 0 ? ` in ${m}m ${s}s` : ` in ${t}s`;
+    }
+    return t <= 30 ? ` in ${t}s` : ` (+${t - 30}s overtime)`;
+  };
+  const timeStr = fmtTime(timeTaken);
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
     scoreClass = 'exact'; headlineText = 'Exact';
-    detailText = isCountdown ? `Hit ${puzzle.target}${timeStr}` : `Hit ${puzzle.target}`;
+    detailText = `Hit ${puzzle.target}${timeStr}`;
   } else if (diff <= 5) {
     scoreClass = 'close'; headlineText = 'Very close';
-    detailText = `${playerBest}, ${diff} away${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away${timeStr}`;
   } else if (diff <= 10) {
     scoreClass = 'close'; headlineText = 'Close';
-    detailText = `${playerBest}, ${diff} away${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away${timeStr}`;
   } else {
     scoreClass = 'miss'; headlineText = 'Not quite';
-    detailText = `${playerBest}, ${diff} away from ${puzzle.target}${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away from ${puzzle.target}${timeStr}`;
   }
 
   headline.textContent = headlineText;
@@ -716,7 +747,9 @@ function continueInFree() {
   updateHintBtn();
   expr = [];
   document.getElementById('continueBtn').style.display = 'none';
-  document.getElementById('timerBarWrap').style.display = 'none';
+  document.getElementById('timerBarWrap').style.display = '';
+  document.getElementById('timerFill').style.display = 'none';
+  startFreeTimer();
   document.getElementById('submitBtn').disabled = steps.length === 0;
   document.getElementById('applyBtn').disabled = true;
   document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
@@ -741,7 +774,14 @@ function shareResult() {
   let text;
   if (shareR.mode === 'free' && !countdownResult) {
     // Pure free-mode play — no countdown was done
-    const resultLine = shareR.diff === 0 ? `✅ ${shareR.target} solved!` : `❌ ${shareR.diff} away from ${shareR.target}`;
+    const freeTime = shareR.timeTaken != null
+      ? (shareR.timeTaken >= 60
+          ? ` in ${Math.floor(shareR.timeTaken/60)}m ${shareR.timeTaken%60}s`
+          : ` in ${shareR.timeTaken}s`)
+      : '';
+    const resultLine = shareR.diff === 0
+      ? `✅ ${shareR.target} solved${freeTime}`
+      : `❌ ${shareR.diff} away from ${shareR.target}${freeTime}`;
     text = [
       `Numble ${dateStr} (Free Time)`,
       '',
