@@ -245,6 +245,14 @@ function setMode(mode) {
   }
 }
 
+function showView(name) {
+  // name: 'start' | 'game' | 'result'
+  document.getElementById('startScreen').style.display = name === 'start' ? '' : 'none';
+  document.getElementById('gameView').style.display   = name === 'game'  ? '' : 'none';
+  document.getElementById('resultView').style.display = name === 'result'? '' : 'none';
+  document.getElementById('targetArea').style.display = name !== 'start' ? '' : 'none';
+}
+
 function init() {
   todayKey = getTodayKey();
   const seed = getDailySeed();
@@ -259,71 +267,73 @@ function init() {
   timeLeft = 30;
   modeLocked = false;
 
-  document.getElementById('dateDisplay').textContent =
-    new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  }).toUpperCase();
+  document.getElementById('dateDisplay').textContent = dateStr;
+  document.getElementById('startDateDisplay').textContent = dateStr;
   document.getElementById('targetDisplay').textContent = puzzle.target;
+  document.getElementById('startTargetDisplay').textContent = puzzle.target;
 
   renderTiles();
   updateExpr();
   updateStepsLog();
-  document.getElementById('resultPanel').classList.remove('show');
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('applyBtn').disabled = true;
 
-  // Streak
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
   renderStreakBar(streak, best);
+  document.getElementById('startStreakDisplay').textContent =
+    streak > 1 ? `🔥 ${streak}-day streak` : streak === 1 ? '🔥 1-day streak' : '';
 
-  // If already played today, show result immediately
+  // Already played today → skip start screen, go to results
   if (history[todayKey] !== undefined) {
+    showView('result');
     restoreTodayResult(history[todayKey].diff, history[todayKey].grid);
     return;
   }
 
-  if (gameMode === 'countdown') {
-    document.querySelector('.timer-bar-wrap').style.display = '';
-    startTimer();
-  } else {
-    document.querySelector('.timer-bar-wrap').style.display = 'none';
-  }
+  showView('start');
+}
+
+function startGame() {
+  showView('game');
+  document.getElementById('timerBarWrap').style.display =
+    gameMode === 'countdown' ? '' : 'none';
+  if (gameMode === 'countdown') startTimer();
 }
 
 function restoreTodayResult(diff, storedGrid) {
   clearInterval(timerInterval);
   gameOver = true;
-  document.getElementById('timerCount').textContent = '—';
-  document.getElementById('timerFill').style.width = '0%';
 
-  // Show result panel with stored diff (no live steps to show)
-  const panel = document.getElementById('resultPanel');
   const headline = document.getElementById('resultHeadline');
-  const score = document.getElementById('resultScore');
-  const detail = document.getElementById('resultDetail');
+  const scoreEl  = document.getElementById('resultScore');
+  const ptsEl    = document.getElementById('resultPts');
+  const detail   = document.getElementById('resultDetail');
   const streakEl = document.getElementById('resultStreak');
-  const solDiv = document.getElementById('resultSolution');
+  const solDiv   = document.getElementById('resultSolution');
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
     scoreClass = 'exact'; headlineText = 'Exact';
-    detailText = `You solved today's puzzle exactly`;
-    score.textContent = puzzle.target;
-  } else if (diff <= 5) {
-    scoreClass = 'close'; headlineText = 'Very close';
-    detailText = `You were ${diff} away from ${puzzle.target}`;
-    score.textContent = puzzle.target - diff;
+    detailText = 'You solved today\'s puzzle';
+    scoreEl.textContent = puzzle.target;
   } else {
-    scoreClass = 'miss'; headlineText = 'Not quite';
-    detailText = `You were ${diff} away from ${puzzle.target}`;
-    score.textContent = puzzle.target - diff;
+    scoreClass = diff <= 10 ? 'close' : 'miss';
+    headlineText = diff <= 5 ? 'Very close' : diff <= 10 ? 'Close' : 'Not quite';
+    detailText = `${diff} away from ${puzzle.target}`;
+    scoreEl.textContent = puzzle.target - diff;
   }
 
   headline.textContent = headlineText;
-  score.className = 'result-score ' + scoreClass;
+  scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText + ' — already played today';
+  ptsEl.textContent = '';
 
   const history = loadHistory();
-  const { streak, best } = calcStreak(history);
+  const { streak } = calcStreak(history);
   streakEl.textContent = streak > 0 ? `🔥 ${streak}-day streak` : '';
 
   const solResult = solve(puzzle.tiles.map(t => t.val), puzzle.target);
@@ -334,8 +344,7 @@ function restoreTodayResult(diff, storedGrid) {
     solDiv.innerHTML = solHtml;
   }
 
-  panel.classList.add('show');
-  window._lastResult = { diff, target: puzzle.target, playerBest: null, steps: [], timeTaken: null, grid: storedGrid };
+  window._lastResult = { diff, target: puzzle.target, playerBest: null, steps: [], timeTaken: null, grid: storedGrid, mode: gameMode };
 }
 
 function startTimer() {
@@ -595,16 +604,17 @@ function submitAnswer() {
 }
 
 function showResult(playerBest, diff, timeTaken, grid) {
-  const panel = document.getElementById('resultPanel');
   const headline = document.getElementById('resultHeadline');
-  const scoreEl = document.getElementById('resultScore');
-  const ptsEl = document.getElementById('resultPts');
-  const detail = document.getElementById('resultDetail');
+  const scoreEl  = document.getElementById('resultScore');
+  const ptsEl    = document.getElementById('resultPts');
+  const detail   = document.getElementById('resultDetail');
   const streakEl = document.getElementById('resultStreak');
-  const solDiv = document.getElementById('resultSolution');
+  const solDiv   = document.getElementById('resultSolution');
 
   const isCountdown = gameMode === 'countdown';
-  const timeStr = timeTaken <= 30 ? ` in ${timeTaken}s` : ` (+${timeTaken - 30}s overtime)`;
+  const timeStr = timeTaken != null
+    ? (timeTaken <= 30 ? ` in ${timeTaken}s` : ` (+${timeTaken - 30}s overtime)`)
+    : '';
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
@@ -625,22 +635,14 @@ function showResult(playerBest, diff, timeTaken, grid) {
   scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '—');
   scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText;
-
-  if (isCountdown) {
-    const pts = calcScore(diff, timeTaken);
-    ptsEl.textContent = `${pts} pts`;
-  } else {
-    ptsEl.textContent = '';
-  }
+  ptsEl.textContent = isCountdown ? `${calcScore(diff, timeTaken)} pts` : '';
 
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
   renderStreakBar(streak, best);
-  if (streak > 0) {
-    streakEl.textContent = streak === 1 ? `🔥 1-day streak — come back tomorrow!` : `🔥 ${streak}-day streak`;
-  } else {
-    streakEl.textContent = '';
-  }
+  streakEl.textContent = streak > 1 ? `🔥 ${streak}-day streak`
+    : streak === 1 ? '🔥 1-day streak — come back tomorrow!'
+    : '';
 
   const solResult = solve(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {
@@ -650,7 +652,7 @@ function showResult(playerBest, diff, timeTaken, grid) {
     solDiv.innerHTML = solHtml;
   }
 
-  panel.classList.add('show');
+  showView('result');
   window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken, grid, mode: gameMode };
 }
 

@@ -17,8 +17,34 @@
 </head>
 <body>
 
+<!-- ── Start screen ── -->
+<div id="startScreen" class="start-screen">
+  <div class="start-inner">
+    <div class="start-eyebrow">Daily Puzzle</div>
+    <h1 class="start-title">NUM<span>BLE</span></h1>
+    <div class="start-date" id="startDateDisplay"></div>
+
+    <div class="start-target-wrap">
+      <div class="start-target-label">Today's target</div>
+      <div class="start-target" id="startTargetDisplay">—</div>
+    </div>
+
+    <div class="start-streak" id="startStreakDisplay"></div>
+
+    <div class="mode-toggle start-mode-toggle">
+      <button class="mode-btn active" id="modeCountdown" onclick="setMode('countdown')">⏱ Countdown</button>
+      <button class="mode-btn" id="modeFree" onclick="setMode('free')">∞ Free</button>
+    </div>
+
+    <div class="start-actions">
+      <button class="btn btn-primary start-play-btn" onclick="startGame()">▶ Start</button>
+      <button class="btn btn-ghost" onclick="openHowTo()">How to Play</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Persistent header ── -->
 <header>
-  <div class="game-title">Daily Puzzle</div>
   <div class="header-top">
     <h1>NUM<span>BLE</span></h1>
     <button class="help-btn" onclick="openHowTo()" aria-label="How to play">?</button>
@@ -29,62 +55,73 @@
     <span class="streak-value" id="streakValue">0</span>
     <span class="streak-best" id="streakBest"></span>
   </div>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="modeCountdown" onclick="setMode('countdown')">⏱ Countdown</button>
-    <button class="mode-btn" id="modeFree" onclick="setMode('free')">∞ Free</button>
-  </div>
 </header>
 
-<div class="target-area">
+<!-- ── Target (always visible during game + result) ── -->
+<div class="target-area" id="targetArea" style="display:none">
   <div class="target-label">Target</div>
   <div class="target-number" id="targetDisplay">—</div>
 </div>
 
-<div class="timer-bar-wrap">
-  <div class="timer-label">
-    <span>Time</span>
-    <span id="timerCount">30</span>
+<!-- ── Game view ── -->
+<div id="gameView" style="display:none; width:100%; max-width:480px">
+
+  <div class="timer-bar-wrap" id="timerBarWrap">
+    <div class="timer-label">
+      <span>Time</span>
+      <span id="timerCount">30</span>
+    </div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
   </div>
-  <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+
+  <div class="tiles-area" id="tilesArea"></div>
+
+  <div class="workings-area">
+    <div class="workings-label">Working</div>
+    <div class="expression-display" id="exprDisplay">
+      <span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>
+    </div>
+    <div class="ops-row">
+      <button class="op-btn" id="opPlus" onclick="selectOp('+')" disabled>+</button>
+      <button class="op-btn" id="opMinus" onclick="selectOp('−')" disabled>−</button>
+      <button class="op-btn" id="opMul" onclick="selectOp('×')" disabled>×</button>
+      <button class="op-btn" id="opDiv" onclick="selectOp('÷')" disabled>÷</button>
+      <button class="op-btn" id="applyBtn" onclick="applyStep()" disabled
+        style="color:var(--accent);border-color:var(--accent);font-size:24px">=</button>
+    </div>
+    <div class="steps-log" id="stepsLog"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-ghost" onclick="undoStep()">Undo</button>
+    <button class="btn btn-ghost" onclick="clearWorking()">Clear</button>
+    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
+  </div>
+
 </div>
 
-<div class="tiles-area" id="tilesArea"></div>
+<!-- ── Result view ── -->
+<div id="resultView" style="display:none; width:100%; max-width:480px">
 
-<div class="workings-area">
-  <div class="workings-label">Working</div>
-  <div class="expression-display" id="exprDisplay">
-    <span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>
+  <div class="result-card">
+    <div class="result-headline" id="resultHeadline"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-pts" id="resultPts"></div>
+    <div class="result-detail" id="resultDetail"></div>
+    <div class="result-streak" id="resultStreak"></div>
+
+    <div class="result-solution" id="resultSolution"></div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary result-share-btn" onclick="shareResult()">Copy Result</button>
+    </div>
   </div>
-  <div class="ops-row">
-    <button class="op-btn" id="opPlus" onclick="selectOp('+')" disabled>+</button>
-    <button class="op-btn" id="opMinus" onclick="selectOp('−')" disabled>−</button>
-    <button class="op-btn" id="opMul" onclick="selectOp('×')" disabled>×</button>
-    <button class="op-btn" id="opDiv" onclick="selectOp('÷')" disabled>÷</button>
-    <button class="op-btn" id="applyBtn" onclick="applyStep()" disabled
-      style="color:var(--accent);border-color:var(--accent);font-size:24px">=</button>
-  </div>
-  <div class="steps-log" id="stepsLog"></div>
-</div>
 
-<div class="action-row">
-  <button class="btn btn-ghost" onclick="undoStep()">Undo</button>
-  <button class="btn btn-ghost" onclick="clearWorking()">Clear</button>
-  <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
-</div>
-
-<div class="result-panel" id="resultPanel">
-  <div class="result-headline" id="resultHeadline"></div>
-  <div class="result-score" id="resultScore"></div>
-  <div class="result-pts" id="resultPts"></div>
-  <div class="result-detail" id="resultDetail"></div>
-  <div class="result-streak" id="resultStreak"></div>
-  <div class="result-solution" id="resultSolution"></div>
-  <button class="btn btn-primary share-btn" onclick="shareResult()">Copy Result</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- How-to-play modal -->
+<!-- ── How-to-play modal ── -->
 <div class="modal-overlay" id="howToModal" onclick="if(event.target===this)closeHowTo()">
   <div class="modal" role="dialog" aria-modal="true" aria-label="How to play">
     <div class="modal-header">
@@ -113,30 +150,19 @@
 
     <div class="modal-section">
       <div class="modal-section-title">The Rules</div>
-      <div class="modal-rule"><span class="modal-rule-icon">1.</span><span>Tap a number tile, then an operator (+−×÷), then another number tile, then = to apply the step.</span></div>
+      <div class="modal-rule"><span class="modal-rule-icon">1.</span><span>Tap a number tile, then an operator, then another number. You can chain multiple operators — e.g. <strong>25 + 3 × 8</strong> is evaluated with BODMAS.</span></div>
       <div class="modal-rule"><span class="modal-rule-icon">2.</span><span>Results of each step become new tiles you can use in the next step.</span></div>
       <div class="modal-rule"><span class="modal-rule-icon">3.</span><span>Division must be exact — no fractions.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">4.</span><span>All intermediate results must be positive.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">5.</span><span>Hit <strong>Submit</strong> when you're done — or when it auto-submits on an exact match.</span></div>
+      <div class="modal-rule"><span class="modal-rule-icon">4.</span><span>All results must be positive.</span></div>
+      <div class="modal-rule"><span class="modal-rule-icon">5.</span><span>Hit <strong>=</strong> to apply a step. Hit <strong>Submit</strong> when you're done.</span></div>
     </div>
 
     <hr class="modal-divider">
 
     <div class="modal-section">
-      <div class="modal-section-title">The Timer</div>
-      <div class="modal-body">
-        You have <strong>30 seconds</strong>. The timer keeps going into <strong>overtime</strong> — there's no hard stop. A faster exact solution scores better on the share card.
-      </div>
-    </div>
-
-    <hr class="modal-divider">
-
-    <div class="modal-section">
-      <div class="modal-section-title">Scoring</div>
-      <div class="modal-rule"><span class="modal-rule-icon">🎯</span><span><strong>Exact</strong> — you hit the target</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">🔥</span><span><strong>Very close</strong> — within 5</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">👍</span><span><strong>Close</strong> — within 10</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">💡</span><span><strong>Not quite</strong> — more than 10 away</span></div>
+      <div class="modal-section-title">Modes</div>
+      <div class="modal-rule"><span class="modal-rule-icon">⏱</span><span><strong>Countdown</strong> — 30 seconds, then auto-submit. Score is based on speed and accuracy.</span></div>
+      <div class="modal-rule"><span class="modal-rule-icon">∞</span><span><strong>Free</strong> — No timer. Just solve it.</span></div>
     </div>
 
     <button class="btn btn-primary" onclick="closeHowTo()" style="width:100%;margin-top:8px">Let's go!</button>
