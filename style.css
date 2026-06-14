@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,7 +20,7 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Nunito', sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -48,24 +48,24 @@ header {
 
 .game-title {
   font-size: 11px;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 4px;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .game-date {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   margin-top: 4px;
+  font-weight: 500;
 }
 
 h1 {
   font-size: clamp(36px, 8vw, 64px);
-  font-weight: 700;
+  font-weight: 900;
   letter-spacing: -1px;
   line-height: 1;
 }
@@ -83,9 +83,9 @@ h1 span { color: var(--accent); }
   border: 1.5px solid var(--border);
   background: var(--surface);
   color: var(--muted);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -103,23 +103,23 @@ h1 span { color: var(--accent); }
   gap: 8px;
   margin-top: 10px;
   font-size: 11px;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: var(--muted);
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .streak-value {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 800;
   color: var(--accent);
   line-height: 1;
 }
 
 .streak-best {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
   color: var(--muted);
+  font-weight: 600;
 }
 
 /* ── Mode toggle ── */
@@ -136,10 +136,10 @@ h1 span { color: var(--accent); }
 }
 
 .mode-btn {
-  font-family: 'Oswald', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
   text-transform: uppercase;
   padding: 7px 16px;
   border: none;
@@ -172,17 +172,17 @@ h1 span { color: var(--accent); }
 }
 
 .target-label {
-  font-size: 10px;
-  letter-spacing: 3px;
+  font-size: 11px;
+  letter-spacing: 2px;
   color: var(--muted);
   margin-bottom: 6px;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .target-number {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(48px, 14vw, 88px);
-  font-weight: 600;
+  font-weight: 900;
   color: var(--accent);
   line-height: 1;
   letter-spacing: -2px;
@@ -198,10 +198,12 @@ h1 span { color: var(--accent); }
 .timer-label {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 11px;
+  letter-spacing: 1px;
   color: var(--muted);
   margin-bottom: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .timer-bar {
@@ -252,18 +254,18 @@ h1 span { color: var(--accent); }
 
 .tile-tag {
   font-size: 8px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 2px;
+  font-weight: 700;
 }
 
 .tile.big .tile-tag { color: var(--big); }
 .tile.small .tile-tag { color: var(--small); }
 
 .tile-val {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 26px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .tile.big .tile-val { color: var(--big); }
@@ -290,16 +292,17 @@ h1 span { color: var(--accent); }
 }
 
 .workings-label {
-  font-size: 10px;
-  letter-spacing: 3px;
+  font-size: 11px;
+  letter-spacing: 2px;
   color: var(--muted);
   margin-bottom: 10px;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .expression-display {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 20px;
+  font-weight: 700;
   min-height: 52px;
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -311,7 +314,6 @@ h1 span { color: var(--accent); }
   flex-wrap: wrap;
   margin-bottom: 12px;
   color: var(--text);
-  letter-spacing: 0.5px;
 }
 
 .expr-token { padding: 2px 6px; border-radius: 3px; }
@@ -328,9 +330,9 @@ h1 span { color: var(--accent); }
 }
 
 .op-btn {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 20px;
-  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
   width: 56px;
   height: 56px;
   border: 1.5px solid var(--border);
@@ -356,8 +358,8 @@ h1 span { color: var(--accent); }
 
 /* ── Steps log ── */
 .steps-log {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
+  font-weight: 600;
   color: var(--muted);
   line-height: 1.8;
   height: 72px; /* fixed: 3 lines × ~24px — never grows */
@@ -381,10 +383,10 @@ h1 span { color: var(--accent); }
 }
 
 .btn {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 2px;
+  font-weight: 700;
+  letter-spacing: 1px;
   text-transform: uppercase;
   padding: 12px 22px;
   border-radius: 4px;
@@ -432,15 +434,16 @@ h1 span { color: var(--accent); }
 }
 
 .start-eyebrow {
-  font-size: 11px;
-  letter-spacing: 4px;
+  font-size: 12px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
+  font-weight: 600;
 }
 
 .start-title {
   font-size: clamp(52px, 14vw, 80px);
-  font-weight: 700;
+  font-weight: 900;
   letter-spacing: -1px;
   line-height: 1;
 }
@@ -448,10 +451,10 @@ h1 span { color: var(--accent); }
 .start-title span { color: var(--accent); }
 
 .start-date {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .start-target-wrap {
@@ -459,26 +462,26 @@ h1 span { color: var(--accent); }
 }
 
 .start-target-label {
-  font-size: 10px;
-  letter-spacing: 3px;
+  font-size: 11px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .start-target {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(56px, 16vw, 88px);
-  font-weight: 600;
+  font-weight: 900;
   color: var(--accent);
   line-height: 1;
   letter-spacing: -2px;
 }
 
 .start-streak {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--accent);
-  letter-spacing: 1px;
   min-height: 20px;
 }
 
@@ -497,7 +500,7 @@ h1 span { color: var(--accent); }
 .start-play-btn {
   font-size: 16px;
   padding: 14px 24px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   width: 100%;
 }
 
@@ -512,19 +515,20 @@ h1 span { color: var(--accent); }
 }
 
 .result-headline {
-  font-size: 13px;
-  letter-spacing: 3px;
+  font-size: 12px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .result-score {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 52px;
-  font-weight: 600;
+  font-size: 56px;
+  font-weight: 900;
   line-height: 1;
   margin-bottom: 4px;
+  letter-spacing: -1px;
 }
 
 .result-score.exact { color: var(--accent2); }
@@ -532,39 +536,37 @@ h1 span { color: var(--accent); }
 .result-score.miss { color: var(--danger); }
 
 .result-pts {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--accent);
   margin-bottom: 6px;
-  letter-spacing: -0.5px;
 }
 
 .result-pts:empty { display: none; }
 
 .result-detail {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--muted);
   margin-bottom: 12px;
-  letter-spacing: 0.5px;
 }
 
 .result-streak {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--accent);
   margin-bottom: 16px;
-  letter-spacing: 1px;
 }
 
 .result-solution {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--muted);
   border-top: 1px solid var(--border);
   padding-top: 16px;
   margin-bottom: 20px;
   text-align: left;
-  line-height: 1.9;
+  line-height: 2;
 }
 
 .result-solution .sol-line { color: var(--text); }
@@ -581,10 +583,10 @@ h1 span { color: var(--accent); }
   transform: translateX(-50%) translateY(80px);
   background: var(--text);
   color: var(--bg);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   padding: 10px 24px;
   border-radius: 4px;
@@ -641,8 +643,8 @@ h1 span { color: var(--accent); }
 
 .modal-title {
   font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-weight: 800;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
@@ -669,29 +671,29 @@ h1 span { color: var(--accent); }
 
 .modal-section-title {
   font-size: 10px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .modal-body {
   font-size: 14px;
+  font-weight: 500;
   color: var(--muted);
   line-height: 1.7;
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 400;
 }
 
-.modal-body strong { color: var(--text); font-weight: 600; }
+.modal-body strong { color: var(--text); font-weight: 700; }
 
 .modal-rule {
   display: flex;
   gap: 10px;
   margin-bottom: 8px;
   font-size: 13px;
+  font-weight: 500;
   color: var(--muted);
-  font-family: 'IBM Plex Mono', monospace;
   line-height: 1.5;
 }
 
@@ -712,13 +714,13 @@ h1 span { color: var(--accent); }
   .tile { width: 64px; height: 60px; }
   .tile-val { font-size: 22px; }
 
-  .op-btn { width: 52px; height: 52px; font-size: 18px; }
+  .op-btn { width: 52px; height: 52px; font-size: 20px; }
 
   .ops-row { gap: 6px; }
 
   .action-row { gap: 8px; }
 
-  .btn { padding: 11px 16px; font-size: 12px; letter-spacing: 1.5px; }
+  .btn { padding: 11px 16px; font-size: 12px; letter-spacing: 0.5px; }
 
   .expression-display { font-size: 18px; padding: 10px 12px; }
 
