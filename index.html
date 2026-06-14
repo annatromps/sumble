@@ -43,6 +43,14 @@
   </div>
 </div>
 
+<!-- ── Admin bar (visible only with ?admin in URL) ── -->
+<div class="admin-bar" id="adminBar" style="display:none">
+  <span class="admin-label">🔧 Admin</span>
+  <button class="admin-btn" onclick="adminReset()">Reset Today</button>
+  <button class="admin-btn" onclick="adminToggleSolution()">View Solution</button>
+</div>
+<div class="admin-solution" id="adminSolution" style="display:none"></div>
+
 <!-- ── Persistent header ── -->
 <header>
   <div class="header-top">

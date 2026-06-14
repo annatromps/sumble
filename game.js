@@ -861,4 +861,34 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ── Admin ──
+const isAdmin = new URLSearchParams(window.location.search).has('admin');
+
+function initAdmin() {
+  if (!isAdmin) return;
+  document.getElementById('adminBar').style.display = 'flex';
+}
+
+function adminReset() {
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function adminToggleSolution() {
+  const panel = document.getElementById('adminSolution');
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+
+  const sol = solve(puzzle.tiles.map(t => t.val), puzzle.target);
+  if (!sol) { panel.innerHTML = '<em>No solution found</em>'; panel.style.display = 'block'; return; }
+
+  const exact = sol.val === puzzle.target;
+  const nums = puzzle.tiles.map(t => t.val).join(', ');
+  panel.innerHTML = `
+    <div class="admin-sol-header">Target: <strong>${puzzle.target}</strong> &nbsp;|&nbsp; Numbers: <strong>${nums}</strong> &nbsp;|&nbsp; Steps: <strong>${sol.steps.length}</strong> &nbsp;|&nbsp; <span style="color:${exact ? 'var(--accent2)' : 'var(--danger)'}">${exact ? 'Exact' : sol.val + ' (' + Math.abs(sol.val - puzzle.target) + ' away)'}</span></div>
+    ${sol.steps.map(s => `<div class="admin-sol-step">${s}</div>`).join('')}
+  `;
+  panel.style.display = 'block';
+}
+
 init();
+initAdmin();

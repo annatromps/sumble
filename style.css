@@ -718,6 +718,70 @@ h1 span { color: var(--accent); }
   margin: 18px 0;
 }
 
+/* ── Admin ── */
+.admin-bar {
+  width: 100%;
+  max-width: 480px;
+  background: #1a1628;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-label {
+  color: #f0c040;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-right: auto;
+}
+
+.admin-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.admin-btn:hover { background: rgba(255,255,255,0.22); }
+
+.admin-solution {
+  width: 100%;
+  max-width: 480px;
+  background: #1a1628;
+  color: #e0daf8;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 2;
+}
+
+.admin-sol-header {
+  font-size: 12px;
+  color: #a090d0;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-sol-header strong { color: #fff; }
+
+.admin-sol-step { color: #e0daf8; }
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
   body { padding: 16px 12px 40px; }
