@@ -855,6 +855,10 @@ document.addEventListener('keydown', e => {
     closeHowTo();
     if (paused) resumeGame();
   }
+  if (e.key === 'Enter') {
+    const applyBtn = document.getElementById('applyBtn');
+    if (applyBtn && !applyBtn.disabled) applyStep();
+  }
 });
 
 init();
