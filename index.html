@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numble</title>
+<meta name="description" content="A daily numbers puzzle. Six numbers, one target, 30 seconds. Can you make it?">
+<meta property="og:title" content="Numble">
+<meta property="og:description" content="A daily numbers puzzle. Six numbers, one target, 30 seconds. Can you make it?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://annatromps.github.io/numble">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Numble">
+<meta name="twitter:description" content="A daily numbers puzzle. Six numbers, one target, 30 seconds. Can you make it?">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0e12;
+    --surface: #15161c;
+    --border: #2a2b36;
+    --text: #e8e8ee;
+    --muted: #6b6c7e;
+    --accent: #f0c040;
+    --accent2: #4af0a0;
+    --danger: #f05060;
+    --tile-bg: #1e1f28;
+    --tile-border: #32334a;
+    --big: #f0c040;
+    --small: #c0c8e8;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Oswald', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .game-title {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  .game-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  /* Target */
+  .target-area {
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .target-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .target-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(52px, 14vw, 96px);
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  /* Timer */
+  .timer-bar-wrap {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+
+  .timer-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .timer-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .timer-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 1s linear, background 0.3s;
+    width: 100%;
+  }
+
+  .timer-fill.urgent { background: var(--danger); }
+
+  /* Number tiles */
+  .tiles-area {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+    max-width: 520px;
+  }
+
+  .tile {
+    width: 70px;
+    height: 80px;
+    border: 1.5px solid var(--tile-border);
+    background: var(--tile-bg);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    position: relative;
+    user-select: none;
+  }
+
+  .tile:hover:not(.used):not(.selected) {
+    border-color: var(--muted);
+  }
+
+  .tile.big .tile-tag {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--big);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .tile.small .tile-tag {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--small);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .tile-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  .tile.big .tile-val { color: var(--big); }
+  .tile.small .tile-val { color: var(--small); }
+
+  .tile.selected {
+    border-color: var(--accent);
+    background: #1e1f28;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(240,192,64,0.2);
+  }
+
+  .tile.used {
+    opacity: 0.25;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Workings */
+  .workings-area {
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 24px;
+  }
+
+  .workings-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .expression-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    min-height: 52px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  .expr-token {
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .expr-token.num { background: rgba(240,192,64,0.15); color: var(--accent); }
+  .expr-token.op { color: var(--muted); font-size: 18px; }
+  .expr-token.result-good { color: var(--accent2); }
+  .expr-token.result-bad { color: var(--danger); }
+
+  .ops-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .op-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    width: 52px;
+    height: 52px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .op-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .op-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(240,192,64,0.08);
+  }
+
+  .op-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* Steps log */
+  .steps-log {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    min-height: 28px;
+    margin-bottom: 16px;
+  }
+
+  .steps-log .step-line { color: var(--text); }
+  .steps-log .step-line span { color: var(--accent); }
+
+  /* Action buttons */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 480px;
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border-radius: 4px;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+
+  .btn-primary:hover { background: #f5d060; }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+  .btn-danger:hover { background: rgba(240,80,96,0.1); }
+
+  /* Result panel */
+  .result-panel {
+    display: none;
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  .result-panel.show { display: block; }
+
+  .result-headline {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .result-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .result-score.exact { color: var(--accent2); }
+  .result-score.close { color: var(--accent); }
+  .result-score.miss { color: var(--danger); }
+
+  .result-detail {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .result-solution {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 4px;
+    text-align: left;
+    line-height: 1.9;
+  }
+
+  .result-solution .sol-line { color: var(--text); }
+
+  .share-btn {
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 400px) {
+    .tile { width: 54px; height: 66px; }
+    .tile-val { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="game-title">Numble</div>
+  <h1>NUM<span>BLE</span></h1>
+  <div class="game-date" id="dateDisplay"></div>
+</header>
+
+<div class="target-area">
+  <div class="target-label">Target</div>
+  <div class="target-number" id="targetDisplay">—</div>
+</div>
+
+<div class="timer-bar-wrap">
+  <div class="timer-label">
+    <span>Time</span>
+    <span id="timerCount">30</span>
+  </div>
+  <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+</div>
+
+<div class="tiles-area" id="tilesArea"></div>
+
+<div class="workings-area">
+  <div class="workings-label">Working</div>
+  <div class="expression-display" id="exprDisplay"><span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span></div>
+  <div class="ops-row">
+    <button class="op-btn" id="opPlus" onclick="selectOp('+')">+</button>
+    <button class="op-btn" id="opMinus" onclick="selectOp('−')">−</button>
+    <button class="op-btn" id="opMul" onclick="selectOp('×')">×</button>
+    <button class="op-btn" id="opDiv" onclick="selectOp('÷')">÷</button>
+    <button class="op-btn" id="applyBtn" onclick="applyStep()" disabled style="color:var(--accent);border-color:var(--accent);font-size:24px">=</button>
+  </div>
+  <div class="steps-log" id="stepsLog"></div>
+</div>
+
+<div class="action-row">
+<button class="btn btn-ghost" onclick="undoStep()">Undo</button>
+  <button class="btn btn-ghost" onclick="clearWorking()">Clear</button>
+  <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
+</div>
+
+<div class="result-panel" id="resultPanel">
+  <div class="result-headline" id="resultHeadline"></div>
+  <div class="result-score" id="resultScore"></div>
+  <div class="result-detail" id="resultDetail"></div>
+  <div class="result-solution" id="resultSolution"></div>
+  <button class="btn btn-primary share-btn" onclick="shareResult()">Copy Result</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// --- Seeded RNG ---
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+function getDailySeed() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+}
+
+function generatePuzzle(rng) {
+  const bigNums = [25, 50, 75, 100];
+  const smallNums = [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10];
+  const bigCopy = [...bigNums];
+  const smallCopy = [...smallNums];
+
+  // shuffle
+  for (let i = bigCopy.length-1; i > 0; i--) {
+    const j = Math.floor(rng() * (i+1));
+    [bigCopy[i],bigCopy[j]] = [bigCopy[j],bigCopy[i]];
+  }
+  for (let i = smallCopy.length-1; i > 0; i--) {
+    const j = Math.floor(rng() * (i+1));
+    [smallCopy[i],smallCopy[j]] = [smallCopy[j],smallCopy[i]];
+  }
+
+  // 2 big, 4 small (classic mix)
+  const chosen = [
+    {val: bigCopy[0], type:'big'},
+    {val: bigCopy[1], type:'big'},
+    {val: smallCopy[0], type:'small'},
+    {val: smallCopy[1], type:'small'},
+    {val: smallCopy[2], type:'small'},
+    {val: smallCopy[3], type:'small'},
+  ];
+
+  // target 101-999
+  const target = 101 + Math.floor(rng() * 899);
+  return { tiles: chosen, target };
+}
+
+// --- Solver (for showing solution) ---
+function solve(numbers, target) {
+  // BFS/recursive over all orderings
+  let best = null;
+  let bestDiff = Infinity;
+
+  function search(nums, steps) {
+    for (let i = 0; i < nums.length; i++) {
+      const diff = Math.abs(nums[i].val - target);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = { val: nums[i].val, steps: [...steps] };
+        if (bestDiff === 0) return;
+      }
+    }
+    if (nums.length < 2) return;
+    for (let i = 0; i < nums.length; i++) {
+      for (let j = 0; j < nums.length; j++) {
+        if (i === j) continue;
+        const a = nums[i], b = nums[j];
+        const rest = nums.filter((_,k) => k!==i && k!==j);
+        const ops = [
+          { op:'+', val: a.val + b.val, str: `${a.val} + ${b.val} = ${a.val+b.val}` },
+          { op:'-', val: a.val - b.val, str: `${a.val} − ${b.val} = ${a.val-b.val}` },
+          { op:'*', val: a.val * b.val, str: `${a.val} × ${b.val} = ${a.val*b.val}` },
+        ];
+        if (b.val !== 0 && a.val % b.val === 0) {
+          ops.push({ op:'/', val: a.val / b.val, str: `${a.val} ÷ ${b.val} = ${a.val/b.val}` });
+        }
+        for (const op of ops) {
+          if (op.val > 0) {
+            search([...rest, {val:op.val}], [...steps, op.str]);
+            if (bestDiff === 0) return;
+          }
+        }
+      }
+    }
+  }
+
+  search(numbers.map(n => ({val:n})), []);
+  return best;
+}
+
+// --- Game state ---
+let puzzle, tiles, steps, currentNums, selected1, selectedOp, timerInterval, timeLeft, gameOver;
+
+function init() {
+  const seed = getDailySeed();
+  const rng = mulberry32(seed);
+  puzzle = generatePuzzle(rng);
+
+  tiles = puzzle.tiles.map((t,i) => ({...t, id:i, used:false}));
+  steps = [];
+  currentNums = tiles.map(t => ({val:t.val, id:t.id}));
+  selected1 = null;
+  selectedOp = null;
+  gameOver = false;
+  timeLeft = 30;
+
+  document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+  document.getElementById('targetDisplay').textContent = puzzle.target;
+
+  renderTiles();
+  updateExpr();
+  updateStepsLog();
+  document.getElementById('resultPanel').classList.remove('show');
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('applyBtn').disabled = true;
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const count = document.getElementById('timerCount');
+  const fill = document.getElementById('timerFill');
+  const label = document.querySelector('.timer-label span:first-child');
+
+  if (timeLeft >= 0) {
+    count.textContent = timeLeft;
+    count.style.color = timeLeft <= 10 ? 'var(--danger)' : '';
+    fill.style.width = (timeLeft / 30 * 100) + '%';
+    fill.classList.toggle('urgent', timeLeft <= 10);
+    label.textContent = 'Time';
+    label.style.color = '';
+  } else {
+    count.textContent = timeLeft;
+    count.style.color = 'var(--danger)';
+    fill.style.width = '0%';
+    fill.classList.add('urgent');
+    label.textContent = 'Overtime';
+    label.style.color = 'var(--danger)';
+  }
+}
+
+function renderTiles() {
+  const area = document.getElementById('tilesArea');
+  area.innerHTML = '';
+  // Show original tiles, mark used
+  tiles.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'tile ' + t.type + (t.used ? ' used' : '') + (selected1 && selected1.id===t.id ? ' selected' : '');
+    div.onclick = () => selectTile(t.id);
+    div.innerHTML = `<div class="tile-tag">${t.type}</div><div class="tile-val">${t.val}</div>`;
+    area.appendChild(div);
+  });
+  // Show intermediate results as tiles
+  const intermediates = currentNums.filter(n => !tiles.find(t => t.id===n.id));
+  intermediates.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'tile small' + (selected1 && selected1.id===n.id ? ' selected' : '');
+    div.onclick = () => selectTile(n.id);
+    div.innerHTML = `<div class="tile-tag">result</div><div class="tile-val">${n.val}</div>`;
+    area.appendChild(div);
+  });
+}
+
+function selectTile(id) {
+  if (gameOver) return;
+  const num = currentNums.find(n => n.id===id);
+  if (!num) return;
+  if (selected1 && selected1.id===id) {
+    selected1 = null;
+    updateOpButtons(false);
+    renderTiles();
+    updateExpr();
+    return;
+  }
+  if (!selected1) {
+    selected1 = num;
+    renderTiles();
+    updateOpButtons(true);
+    updateExpr();
+  } else if (selectedOp) {
+    // We have both numbers and op, apply directly
+    const a = selected1, b = num;
+    tryApply(a, b);
+  } else {
+    // Replace selection
+    selected1 = num;
+    renderTiles();
+    updateExpr();
+  }
+}
+
+function updateOpButtons(enabled) {
+  ['opPlus','opMinus','opMul','opDiv'].forEach(id => {
+    document.getElementById(id).disabled = !enabled;
+  });
+}
+
+function selectOp(op) {
+  if (!selected1) return;
+  selectedOp = op;
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+  const map = {'+':'opPlus','−':'opMinus','×':'opMul','÷':'opDiv'};
+  document.getElementById(map[op]).classList.add('active');
+  updateExpr();
+  checkApplyReady();
+}
+
+let selected2 = null;
+
+function selectTile(id) {
+  if (gameOver) return;
+  const num = currentNums.find(n => n.id===id);
+  if (!num) return;
+
+  // Deselect if clicking selected
+  if (selected1 && selected1.id===id && !selectedOp) {
+    selected1 = null;
+    updateOpButtons(false);
+    renderTiles();
+    updateExpr();
+    return;
+  }
+  if (selected2 && selected2.id===id) {
+    selected2 = null;
+    renderTiles();
+    updateExpr();
+    checkApplyReady();
+    return;
+  }
+
+  if (!selected1) {
+    selected1 = num;
+    updateOpButtons(true);
+  } else if (selectedOp && !selected2) {
+    selected2 = num;
+  } else if (!selectedOp) {
+    selected1 = num;
+  }
+  renderTiles();
+  updateExpr();
+  checkApplyReady();
+}
+
+function renderTiles() {
+  const area = document.getElementById('tilesArea');
+  area.innerHTML = '';
+  const origTileIds = new Set(tiles.map(t=>t.id));
+  
+  tiles.forEach(t => {
+    const isUsed = !currentNums.find(n=>n.id===t.id);
+    const isSel1 = selected1 && selected1.id===t.id;
+    const isSel2 = selected2 && selected2.id===t.id;
+    const div = document.createElement('div');
+    div.className = 'tile ' + t.type + (isUsed?' used':'') + (isSel1||isSel2?' selected':'');
+    div.onclick = () => selectTile(t.id);
+    div.innerHTML = `<div class="tile-tag">${t.type}</div><div class="tile-val">${t.val}</div>`;
+    area.appendChild(div);
+  });
+
+  const intermediates = currentNums.filter(n => !origTileIds.has(n.id));
+  intermediates.forEach(n => {
+    const isSel1 = selected1 && selected1.id===n.id;
+    const isSel2 = selected2 && selected2.id===n.id;
+    const div = document.createElement('div');
+    div.className = 'tile small' + (isSel1||isSel2?' selected':'');
+    div.onclick = () => selectTile(n.id);
+    div.innerHTML = `<div class="tile-tag">result</div><div class="tile-val">${n.val}</div>`;
+    area.appendChild(div);
+  });
+}
+
+function checkApplyReady() {
+  const ready = selected1 && selectedOp && selected2;
+  document.getElementById('applyBtn').disabled = !ready;
+}
+
+function updateExpr() {
+  const disp = document.getElementById('exprDisplay');
+  if (!selected1 && !selectedOp && !selected2) {
+    disp.innerHTML = `<span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>`;
+    return;
+  }
+  let html = '';
+  if (selected1) html += `<span class="expr-token num">${selected1.val}</span>`;
+  if (selectedOp) html += `<span class="expr-token op">${selectedOp}</span>`;
+  if (selected2) html += `<span class="expr-token num">${selected2.val}</span>`;
+  disp.innerHTML = html;
+}
+
+function applyStep() {
+  if (!selected1 || !selectedOp || !selected2) return;
+  tryApply(selected1, selected2);
+}
+
+function tryApply(a, b) {
+  const opSym = selectedOp;
+  let result;
+  if (opSym==='+') result = a.val + b.val;
+  else if (opSym==='−') result = a.val - b.val;
+  else if (opSym==='×') result = a.val * b.val;
+  else if (opSym==='÷') {
+    if (b.val===0 || a.val % b.val !== 0) { showToast('Must divide evenly'); return; }
+    result = a.val / b.val;
+  }
+
+  if (result <= 0) { showToast('Result must be positive'); return; }
+
+  // Save state
+  const snapshot = { nums: [...currentNums], tiles: tiles.map(t=>({...t})) };
+  steps.push({ a, b, op:opSym, result, snapshot, stepStr:`${a.val} ${opSym} ${b.val} = ${result}` });
+
+  // Remove a and b, add result
+  const newId = Date.now();
+  currentNums = currentNums.filter(n => n.id!==a.id && n.id!==b.id);
+  currentNums.push({val:result, id:newId});
+
+  selected1 = null;
+  selected2 = null;
+  selectedOp = null;
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+  updateOpButtons(false);
+  renderTiles();
+  updateExpr();
+  updateStepsLog();
+  checkSubmit();
+  document.getElementById('applyBtn').disabled = true;
+
+  // Check exact
+  if (result === puzzle.target) {
+    setTimeout(() => submitAnswer(), 300);
+  }
+}
+
+function updateStepsLog() {
+  const log = document.getElementById('stepsLog');
+  if (steps.length===0) { log.innerHTML=''; return; }
+  log.innerHTML = steps.map(s=>`<div class="step-line">${s.a.val} ${s.op} ${s.b.val} = <span>${s.result}</span></div>`).join('');
+}
+
+function checkSubmit() {
+  // Enable submit if any number equals or is close to target
+  const closest = currentNums.reduce((best,n) => Math.abs(n.val-puzzle.target)<Math.abs(best.val-puzzle.target)?n:best, currentNums[0]);
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function undoStep() {
+  if (steps.length===0) return;
+  const last = steps.pop();
+  currentNums = [...last.snapshot.nums];
+  selected1 = null;
+  selected2 = null;
+  selectedOp = null;
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+  updateOpButtons(false);
+  renderTiles();
+  updateExpr();
+  updateStepsLog();
+  if (steps.length===0) document.getElementById('submitBtn').disabled = true;
+  document.getElementById('applyBtn').disabled = true;
+}
+
+function clearWorking() {
+  selected1 = null;
+  selected2 = null;
+  selectedOp = null;
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+  updateOpButtons(false);
+  renderTiles();
+  updateExpr();
+  document.getElementById('applyBtn').disabled = true;
+}
+
+function submitAnswer() {
+  clearInterval(timerInterval);
+  gameOver = true;
+
+  const closest = currentNums.reduce((best,n) => Math.abs(n.val-puzzle.target)<Math.abs(best.val-puzzle.target)?n:best, currentNums[0]);
+  const diff = Math.abs(closest.val - puzzle.target);
+  const timeTaken = 30 - timeLeft; // positive = within time, >30 = overtime
+
+  showResult(closest.val, diff, timeTaken);
+}
+
+function showResult(playerBest, diff, timeTaken) {
+  const panel = document.getElementById('resultPanel');
+  const headline = document.getElementById('resultHeadline');
+  const score = document.getElementById('resultScore');
+  const detail = document.getElementById('resultDetail');
+  const solDiv = document.getElementById('resultSolution');
+
+  let emoji, scoreClass, headlineText, detailText;
+
+  const timeStr = timeTaken === undefined ? '' : timeTaken <= 30 ? ` in ${timeTaken}s` : ` (+${timeTaken-30}s overtime)`;
+
+  if (diff === 0) {
+    emoji = '🎯';
+    scoreClass = 'exact';
+    headlineText = 'Exact';
+    detailText = `You reached ${puzzle.target} exactly${timeStr}`;
+  } else if (diff <= 5) {
+    emoji = '🔥';
+    scoreClass = 'close';
+    headlineText = 'Very close';
+    detailText = `You got ${playerBest}, just ${diff} away${timeStr}`;
+  } else if (diff <= 10) {
+    emoji = '👍';
+    scoreClass = 'close';
+    headlineText = 'Close';
+    detailText = `You got ${playerBest}, ${diff} away${timeStr}`;
+  } else if (playerBest) {
+    emoji = '💡';
+    scoreClass = 'miss';
+    headlineText = 'Not quite';
+    detailText = `You got ${playerBest}, ${diff} away from ${puzzle.target}${timeStr}`;
+  } else {
+    emoji = '⏱️';
+    scoreClass = 'miss';
+    headlineText = 'Time\'s up';
+    detailText = `No answer submitted`;
+  }
+
+  headline.textContent = headlineText;
+  score.textContent = diff===0 ? puzzle.target : (playerBest || '—');
+  score.className = 'result-score ' + scoreClass;
+  detail.textContent = detailText;
+
+  // Solver
+  const solResult = solve(puzzle.tiles.map(t=>t.val), puzzle.target);
+  if (solResult) {
+    const diff2 = Math.abs(solResult.val - puzzle.target);
+    let solHtml = `<div style="color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">One solution (${diff2===0?'exact':diff2+' away'})</div>`;
+    solHtml += solResult.steps.map(s=>`<div class="sol-line">${s}</div>`).join('');
+    solDiv.innerHTML = solHtml;
+  }
+
+  panel.classList.add('show');
+  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken };
+}
+
+function shareResult() {
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+  const r = window._lastResult;
+  let line;
+  if (!r) return;
+  if (r.diff===0) {
+    const t = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken-30}s OT`;
+    line = `🎯 Exact! Hit ${r.target} (${t})`;
+  }else if (r.diff<=5) line = `🔥 ${r.playerBest} (${r.diff} away from ${r.target})`;
+  else line = `💡 ${r.playerBest||'—'} (${r.diff} away from ${r.target})`;
+  const text = `Numble — ${dateStr}\n${line}\nhttps://annatromps.github.io/numble`;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+init();
+</script>
+</body>
+</html>
