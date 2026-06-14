@@ -254,10 +254,10 @@ function setMode(mode) {
 
 function showView(name) {
   // name: 'start' | 'game' | 'result'
-  document.getElementById('startScreen').style.display = name === 'start' ? '' : 'none';
-  document.getElementById('gameView').style.display   = name === 'game'  ? '' : 'none';
-  document.getElementById('resultView').style.display = name === 'result'? '' : 'none';
-  document.getElementById('targetArea').style.display = name !== 'start' ? '' : 'none';
+  document.getElementById('startScreen').style.display = name === 'start'  ? '' : 'none';
+  document.getElementById('gameView').style.display   = name === 'game'   ? '' : 'none';
+  document.getElementById('resultView').style.display = name === 'result' ? '' : 'none';
+  document.getElementById('targetArea').style.display = name === 'game'   ? '' : 'none';
 }
 
 function init() {
