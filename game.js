@@ -331,7 +331,7 @@ function restoreTodayResult(diff, storedGrid) {
 
   headline.textContent = headlineText;
   scoreEl.className = 'result-score ' + scoreClass;
-  detail.textContent = detailText + ' — already played today';
+  detail.textContent = detailText + ' (already played today)';
   ptsEl.textContent = '';
 
   const history = loadHistory();
@@ -624,17 +624,17 @@ function showResult(playerBest, diff, timeTaken, grid) {
     detailText = isCountdown ? `Hit ${puzzle.target}${timeStr}` : `Hit ${puzzle.target}`;
   } else if (diff <= 5) {
     scoreClass = 'close'; headlineText = 'Very close';
-    detailText = `${playerBest} — ${diff} away${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away${isCountdown ? timeStr : ''}`;
   } else if (diff <= 10) {
     scoreClass = 'close'; headlineText = 'Close';
-    detailText = `${playerBest} — ${diff} away${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away${isCountdown ? timeStr : ''}`;
   } else {
     scoreClass = 'miss'; headlineText = 'Not quite';
-    detailText = `${playerBest} — ${diff} away from ${puzzle.target}${isCountdown ? timeStr : ''}`;
+    detailText = `${playerBest}, ${diff} away from ${puzzle.target}${isCountdown ? timeStr : ''}`;
   }
 
   headline.textContent = headlineText;
-  scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '—');
+  scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
   scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText;
   ptsEl.textContent = isCountdown ? `${calcScore(diff, timeTaken)} pts` : '';
@@ -643,7 +643,7 @@ function showResult(playerBest, diff, timeTaken, grid) {
   const { streak, best } = calcStreak(history);
   renderStreakBar(streak, best);
   streakEl.textContent = streak > 1 ? `🔥 ${streak}-day streak`
-    : streak === 1 ? '🔥 1-day streak — come back tomorrow!'
+    : streak === 1 ? '🔥 1-day streak, come back tomorrow!'
     : '';
 
   const solResult = solve(puzzle.tiles.map(t => t.val), puzzle.target);
