@@ -230,6 +230,7 @@ let timerInterval, timeLeft, gameOver;
 let todayKey;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
+let countdownResult = null; // locked-in countdown score, preserved if player continues in free
 
 function setMode(mode) {
   if (modeLocked) return;
@@ -266,6 +267,7 @@ function init() {
   gameOver = false;
   timeLeft = 30;
   modeLocked = false;
+  countdownResult = null;
 
   const dateStr = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -652,13 +654,37 @@ function showResult(playerBest, diff, timeTaken, grid) {
     solDiv.innerHTML = solHtml;
   }
 
+  // Show "continue in free" only when countdown ended without exact match
+  const canContinue = gameMode === 'countdown' && diff > 0 && !countdownResult;
+  document.getElementById('continueBtn').style.display = canContinue ? '' : 'none';
+
+  // Lock in the countdown result the first time (before any free-mode continuation)
+  const result = { diff, target: puzzle.target, playerBest, steps: [...steps], timeTaken, grid, mode: gameMode };
+  window._lastResult = result;
+  if (gameMode === 'countdown' && !countdownResult) countdownResult = result;
+
   showView('result');
-  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken, grid, mode: gameMode };
+}
+
+function continueInFree() {
+  gameMode = 'free';
+  gameOver = false;
+  expr = [];
+  document.getElementById('continueBtn').style.display = 'none';
+  document.getElementById('timerBarWrap').style.display = 'none';
+  document.getElementById('submitBtn').disabled = steps.length === 0;
+  document.getElementById('applyBtn').disabled = true;
+  document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
+  updateOpButtons(false);
+  renderTiles(); updateExpr();
+  showView('game');
 }
 
 function shareResult() {
   const r = window._lastResult;
   if (!r) return;
+  // Always share the countdown result if one exists (even if player continued in free)
+  const shareR = countdownResult || r;
 
   const d = new Date();
   const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -668,8 +694,9 @@ function shareResult() {
   const streakLine = streak > 1 ? `🔥 ${streak}-day streak\n` : '';
 
   let text;
-  if (r.mode === 'free') {
-    const resultLine = r.diff === 0 ? `🎯 ${r.target} — solved!` : `✗ ${r.diff} away from ${r.target}`;
+  if (shareR.mode === 'free' && !countdownResult) {
+    // Pure free-mode play — no countdown was done
+    const resultLine = shareR.diff === 0 ? `🎯 ${shareR.target} — solved!` : `✗ ${shareR.diff} away from ${shareR.target}`;
     text = [
       `Numble — ${dateStr} (Free Time)`,
       '',
@@ -678,15 +705,16 @@ function shareResult() {
       `${streakLine}https://annatromps.github.io/numble`,
     ].join('\n');
   } else {
-    const pts = calcScore(r.diff, r.timeTaken);
+    // Countdown result (possibly after continuing in free)
+    const pts = calcScore(shareR.diff, shareR.timeTaken);
     let resultLine;
-    if (r.diff === 0) {
-      const timeStr = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken - 30}s overtime`;
-      resultLine = `🎯 ${r.target} — ${pts} pts (${timeStr})`;
+    if (shareR.diff === 0) {
+      const timeStr = shareR.timeTaken <= 30 ? `${shareR.timeTaken}s` : `+${shareR.timeTaken - 30}s overtime`;
+      resultLine = `🎯 ${shareR.target} — ${pts} pts (${timeStr})`;
     } else {
-      resultLine = `✗ ${r.diff} away — ${pts} pts`;
+      resultLine = `✗ ${shareR.diff} away — ${pts} pts`;
     }
-    const grid = r.grid || buildShareGrid(r.diff, r.timeTaken);
+    const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
     text = [
       `Numble — ${dateStr}`,
       '',

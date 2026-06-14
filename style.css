@@ -3,18 +3,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0d0e12;
-  --surface: #15161c;
-  --border: #2a2b36;
-  --text: #e8e8ee;
-  --muted: #6b6c7e;
-  --accent: #f0c040;
-  --accent2: #4af0a0;
-  --danger: #f05060;
-  --tile-bg: #1e1f28;
-  --tile-border: #32334a;
-  --big: #f0c040;
-  --small: #c0c8e8;
+  --bg: #ffffff;
+  --surface: #f4f1fc;
+  --border: #ddd8f0;
+  --text: #1a1628;
+  --muted: #7e7a96;
+  --accent: #5244b8;
+  --accent2: #1fa876;
+  --danger: #d63f5a;
+  --tile-bg: #ede9f8;
+  --tile-border: #cec7e8;
+  --big: #2f6fbf;
+  --small: #7b56c2;
 }
 
 body {
@@ -273,7 +273,7 @@ h1 span { color: var(--accent); }
   border-color: var(--accent);
   background: var(--tile-bg);
   transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(240,192,64,0.2);
+  box-shadow: 0 4px 16px rgba(82,68,184,0.18);
 }
 
 .tile.used {
@@ -315,7 +315,7 @@ h1 span { color: var(--accent); }
 }
 
 .expr-token { padding: 2px 6px; border-radius: 3px; }
-.expr-token.num { background: rgba(240,192,64,0.15); color: var(--accent); }
+.expr-token.num { background: rgba(82,68,184,0.12); color: var(--accent); }
 .expr-token.op { color: var(--muted); font-size: 18px; }
 .expr-token.result-good { color: var(--accent2); }
 .expr-token.result-bad { color: var(--danger); }
@@ -350,7 +350,7 @@ h1 span { color: var(--accent); }
 .op-btn.active {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(240,192,64,0.08);
+  background: rgba(82,68,184,0.08);
 }
 .op-btn:disabled { opacity: 0.3; cursor: default; }
 
@@ -395,14 +395,14 @@ h1 span { color: var(--accent); }
 }
 
 .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-.btn-primary:hover { background: #f5d060; }
+.btn-primary:hover { background: #6355cc; }
 .btn-primary:disabled { opacity: 0.4; cursor: default; }
 
 .btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
 .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
 
 .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
-.btn-danger:hover { background: rgba(240,80,96,0.1); }
+.btn-danger:hover { background: rgba(214,63,90,0.08); }
 
 /* ── Start screen ── */
 .start-screen {
@@ -595,7 +595,7 @@ h1 span { color: var(--accent); }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(20,10,40,0.55);
   backdrop-filter: blur(4px);
   z-index: 150;
   display: flex;
