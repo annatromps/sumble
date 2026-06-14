@@ -119,15 +119,15 @@ function buildShareGrid(diff, timeTaken) {
   if (timeTaken == null) return '⬛⬛⬛⬛⬛⬛';
 
   if (!exact) {
-    // Not exact — show time used in orange, remainder grey
+    // Not exact — black for time used, orange for remaining
     const used = Math.min(Math.ceil(timeTaken / 5), 6);
-    return '🟧'.repeat(used) + '⬛'.repeat(6 - used);
+    return '⬛'.repeat(used) + '🟧'.repeat(6 - used);
   }
 
   if (!overtime) {
-    // Exact within time — green for blocks used, grey for remaining
+    // Exact within time — black for time used, green for remaining
     const used = Math.min(Math.ceil(timeTaken / 5), 6);
-    return '🟩'.repeat(used) + '⬛'.repeat(6 - used);
+    return '⬛'.repeat(used) + '🟩'.repeat(6 - used);
   }
 
   // Exact but overtime — 6 red base + extras for OT
