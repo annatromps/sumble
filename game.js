@@ -217,10 +217,32 @@ function renderStreakBar(streak, best) {
   document.getElementById('streakBest').textContent = `best ${best}`;
 }
 
+// ── Scoring ──
+function calcScore(diff, timeTaken) {
+  if (diff === 0) return Math.max(700, 1000 - Math.floor(timeTaken) * 10);
+  return Math.max(0, 500 - diff * 5);
+}
+
 // ── Game state ──
 let puzzle, tiles, steps, currentNums, selected1, selected2, selectedOp;
 let timerInterval, timeLeft, gameOver;
 let todayKey;
+let gameMode = 'countdown'; // 'countdown' | 'free'
+let modeLocked = false;
+
+function setMode(mode) {
+  if (modeLocked) return;
+  gameMode = mode;
+  document.getElementById('modeCountdown').classList.toggle('active', mode === 'countdown');
+  document.getElementById('modeFree').classList.toggle('active', mode === 'free');
+  document.querySelector('.timer-bar-wrap').style.display = mode === 'countdown' ? '' : 'none';
+  if (mode === 'free') {
+    clearInterval(timerInterval);
+  } else {
+    // restart timer only if game not over and no steps yet
+    if (!gameOver && steps.length === 0) startTimer();
+  }
+}
 
 function init() {
   todayKey = getTodayKey();
@@ -236,6 +258,7 @@ function init() {
   selectedOp = null;
   gameOver = false;
   timeLeft = 30;
+  modeLocked = false;
 
   document.getElementById('dateDisplay').textContent =
     new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
@@ -259,7 +282,12 @@ function init() {
     return;
   }
 
-  startTimer();
+  if (gameMode === 'countdown') {
+    document.querySelector('.timer-bar-wrap').style.display = '';
+    startTimer();
+  } else {
+    document.querySelector('.timer-bar-wrap').style.display = 'none';
+  }
 }
 
 function restoreTodayResult(diff, storedGrid) {
@@ -325,14 +353,26 @@ function updateTimerUI() {
   const fill = document.getElementById('timerFill');
   const label = document.querySelector('.timer-label span:first-child');
 
-  if (timeLeft >= 0) {
+  if (timeLeft > 0) {
     count.textContent = timeLeft;
     count.style.color = timeLeft <= 10 ? 'var(--danger)' : '';
     fill.style.width = (timeLeft / 30 * 100) + '%';
     fill.classList.toggle('urgent', timeLeft <= 10);
     label.textContent = 'Time';
     label.style.color = '';
+  } else if (timeLeft === 0) {
+    count.textContent = '0';
+    count.style.color = 'var(--danger)';
+    fill.style.width = '0%';
+    fill.classList.add('urgent');
+    label.textContent = 'Time';
+    label.style.color = '';
+    // Auto-submit in countdown mode
+    if (gameMode === 'countdown' && !gameOver) {
+      setTimeout(() => submitAnswer(), 400);
+    }
   } else {
+    // Overtime (only reached if somehow timeLeft goes below 0 outside countdown mode)
     count.textContent = timeLeft;
     count.style.color = 'var(--danger)';
     fill.style.width = '0%';
@@ -435,6 +475,13 @@ function applyStep() {
 }
 
 function tryApply(a, b) {
+  // Lock mode once the player starts
+  if (!modeLocked) {
+    modeLocked = true;
+    document.getElementById('modeCountdown').disabled = true;
+    document.getElementById('modeFree').disabled = true;
+  }
+
   const opSym = selectedOp;
   let result;
   if (opSym === '+') result = a.val + b.val;
@@ -506,9 +553,9 @@ function submitAnswer() {
     currentNums[0]
   );
   const diff = Math.abs(closest.val - puzzle.target);
-  const timeTaken = 30 - timeLeft;
+  const timeTaken = gameMode === 'countdown' ? 30 - timeLeft : null;
 
-  const grid = buildShareGrid(diff, timeTaken);
+  const grid = gameMode === 'countdown' ? buildShareGrid(diff, timeTaken) : null;
 
   // Save to history
   recordResult(todayKey, diff, grid);
@@ -519,32 +566,41 @@ function submitAnswer() {
 function showResult(playerBest, diff, timeTaken, grid) {
   const panel = document.getElementById('resultPanel');
   const headline = document.getElementById('resultHeadline');
-  const score = document.getElementById('resultScore');
+  const scoreEl = document.getElementById('resultScore');
+  const ptsEl = document.getElementById('resultPts');
   const detail = document.getElementById('resultDetail');
   const streakEl = document.getElementById('resultStreak');
   const solDiv = document.getElementById('resultSolution');
 
+  const isCountdown = gameMode === 'countdown';
   const timeStr = timeTaken <= 30 ? ` in ${timeTaken}s` : ` (+${timeTaken - 30}s overtime)`;
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
     scoreClass = 'exact'; headlineText = 'Exact';
-    detailText = `You reached ${puzzle.target} exactly${timeStr}`;
+    detailText = isCountdown ? `Hit ${puzzle.target}${timeStr}` : `Hit ${puzzle.target}`;
   } else if (diff <= 5) {
     scoreClass = 'close'; headlineText = 'Very close';
-    detailText = `You got ${playerBest}, just ${diff} away${timeStr}`;
+    detailText = `${playerBest} — ${diff} away${isCountdown ? timeStr : ''}`;
   } else if (diff <= 10) {
     scoreClass = 'close'; headlineText = 'Close';
-    detailText = `You got ${playerBest}, ${diff} away${timeStr}`;
+    detailText = `${playerBest} — ${diff} away${isCountdown ? timeStr : ''}`;
   } else {
     scoreClass = 'miss'; headlineText = 'Not quite';
-    detailText = `You got ${playerBest}, ${diff} away from ${puzzle.target}${timeStr}`;
+    detailText = `${playerBest} — ${diff} away from ${puzzle.target}${isCountdown ? timeStr : ''}`;
   }
 
   headline.textContent = headlineText;
-  score.textContent = diff === 0 ? puzzle.target : (playerBest || '—');
-  score.className = 'result-score ' + scoreClass;
+  scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '—');
+  scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText;
+
+  if (isCountdown) {
+    const pts = calcScore(diff, timeTaken);
+    ptsEl.textContent = `${pts} pts`;
+  } else {
+    ptsEl.textContent = '';
+  }
 
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
@@ -564,7 +620,7 @@ function showResult(playerBest, diff, timeTaken, grid) {
   }
 
   panel.classList.add('show');
-  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken, grid };
+  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken, grid, mode: gameMode };
 }
 
 function shareResult() {
@@ -574,31 +630,39 @@ function shareResult() {
   const d = new Date();
   const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  // Result line
-  let resultLine;
-  if (r.diff === 0) {
-    const timeStr = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken - 30}s overtime`;
-    resultLine = `🎯 ${r.target} — ${timeStr}`;
-  } else {
-    resultLine = `✗ ${r.diff} away from ${r.target}`;
-  }
-
-  // Time grid
-  const grid = r.grid || buildShareGrid(r.diff, r.timeTaken);
-
-  // Streak
   const history = loadHistory();
   const { streak } = calcStreak(history);
   const streakLine = streak > 1 ? `🔥 ${streak}-day streak\n` : '';
 
-  const text = [
-    `Numble — ${dateStr}`,
-    '',
-    resultLine,
-    grid,
-    '',
-    `${streakLine}https://annatromps.github.io/numble`,
-  ].join('\n');
+  let text;
+  if (r.mode === 'free') {
+    const resultLine = r.diff === 0 ? `🎯 ${r.target} — solved!` : `✗ ${r.diff} away from ${r.target}`;
+    text = [
+      `Numble — ${dateStr} (Free Time)`,
+      '',
+      resultLine,
+      '',
+      `${streakLine}https://annatromps.github.io/numble`,
+    ].join('\n');
+  } else {
+    const pts = calcScore(r.diff, r.timeTaken);
+    let resultLine;
+    if (r.diff === 0) {
+      const timeStr = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken - 30}s overtime`;
+      resultLine = `🎯 ${r.target} — ${pts} pts (${timeStr})`;
+    } else {
+      resultLine = `✗ ${r.diff} away — ${pts} pts`;
+    }
+    const grid = r.grid || buildShareGrid(r.diff, r.timeTaken);
+    text = [
+      `Numble — ${dateStr}`,
+      '',
+      resultLine,
+      grid,
+      '',
+      `${streakLine}https://annatromps.github.io/numble`,
+    ].join('\n');
+  }
 
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 }

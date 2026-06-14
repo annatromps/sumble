@@ -29,6 +29,10 @@
     <span class="streak-value" id="streakValue">0</span>
     <span class="streak-best" id="streakBest"></span>
   </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeCountdown" onclick="setMode('countdown')">⏱ Countdown</button>
+    <button class="mode-btn" id="modeFree" onclick="setMode('free')">∞ Free</button>
+  </div>
 </header>
 
 <div class="target-area">
@@ -71,6 +75,7 @@
 <div class="result-panel" id="resultPanel">
   <div class="result-headline" id="resultHeadline"></div>
   <div class="result-score" id="resultScore"></div>
+  <div class="result-pts" id="resultPts"></div>
   <div class="result-detail" id="resultDetail"></div>
   <div class="result-streak" id="resultStreak"></div>
   <div class="result-solution" id="resultSolution"></div>
