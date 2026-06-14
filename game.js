@@ -106,9 +106,38 @@ function saveHistory(history) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
 
-function recordResult(dateKey, diff) {
+// Build a Wordle-style time grid.
+// 6 squares = 30s clock (each square = 5s).
+// Exact within 30s: 🟩 for seconds used, ⬛ remaining.
+// Exact overtime:   all 6 🟥 + one extra 🟥 per 5s of OT.
+// Not exact:        🟧 for seconds used, ⬛ remaining.
+// No answer:        ⬛⬛⬛⬛⬛⬛
+function buildShareGrid(diff, timeTaken) {
+  const exact = diff === 0;
+  const overtime = timeTaken > 30;
+
+  if (timeTaken == null) return '⬛⬛⬛⬛⬛⬛';
+
+  if (!exact) {
+    // Not exact — show time used in orange, remainder grey
+    const used = Math.min(Math.ceil(timeTaken / 5), 6);
+    return '🟧'.repeat(used) + '⬛'.repeat(6 - used);
+  }
+
+  if (!overtime) {
+    // Exact within time — green for blocks used, grey for remaining
+    const used = Math.min(Math.ceil(timeTaken / 5), 6);
+    return '🟩'.repeat(used) + '⬛'.repeat(6 - used);
+  }
+
+  // Exact but overtime — 6 red base + extras for OT
+  const otBlocks = Math.ceil((timeTaken - 30) / 5);
+  return '🟥'.repeat(6 + otBlocks);
+}
+
+function recordResult(dateKey, diff, grid) {
   const history = loadHistory();
-  history[dateKey] = { diff, ts: Date.now() };
+  history[dateKey] = { diff, grid, ts: Date.now() };
   saveHistory(history);
 }
 
@@ -207,14 +236,14 @@ function init() {
 
   // If already played today, show result immediately
   if (history[todayKey] !== undefined) {
-    restoreTodayResult(history[todayKey].diff);
+    restoreTodayResult(history[todayKey].diff, history[todayKey].grid);
     return;
   }
 
   startTimer();
 }
 
-function restoreTodayResult(diff) {
+function restoreTodayResult(diff, storedGrid) {
   clearInterval(timerInterval);
   gameOver = true;
   document.getElementById('timerCount').textContent = '—';
@@ -260,6 +289,7 @@ function restoreTodayResult(diff) {
   }
 
   panel.classList.add('show');
+  window._lastResult = { diff, target: puzzle.target, playerBest: null, steps: [], timeTaken: null, grid: storedGrid };
 }
 
 function startTimer() {
@@ -459,13 +489,15 @@ function submitAnswer() {
   const diff = Math.abs(closest.val - puzzle.target);
   const timeTaken = 30 - timeLeft;
 
-  // Save to history
-  recordResult(todayKey, diff);
+  const grid = buildShareGrid(diff, timeTaken);
 
-  showResult(closest.val, diff, timeTaken);
+  // Save to history
+  recordResult(todayKey, diff, grid);
+
+  showResult(closest.val, diff, timeTaken, grid);
 }
 
-function showResult(playerBest, diff, timeTaken) {
+function showResult(playerBest, diff, timeTaken, grid) {
   const panel = document.getElementById('resultPanel');
   const headline = document.getElementById('resultHeadline');
   const score = document.getElementById('resultScore');
@@ -513,27 +545,42 @@ function showResult(playerBest, diff, timeTaken) {
   }
 
   panel.classList.add('show');
-  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken };
+  window._lastResult = { diff, target: puzzle.target, playerBest, steps, timeTaken, grid };
 }
 
 function shareResult() {
-  const d = new Date();
-  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   const r = window._lastResult;
   if (!r) return;
-  let line;
+
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  // Result line
+  let resultLine;
   if (r.diff === 0) {
-    const t = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken - 30}s OT`;
-    line = `🎯 Exact! Hit ${r.target} (${t})`;
-  } else if (r.diff <= 5) {
-    line = `🔥 ${r.playerBest} (${r.diff} away from ${r.target})`;
+    const timeStr = r.timeTaken <= 30 ? `${r.timeTaken}s` : `+${r.timeTaken - 30}s overtime`;
+    resultLine = `🎯 ${r.target} — ${timeStr}`;
   } else {
-    line = `💡 ${r.playerBest || '—'} (${r.diff} away from ${r.target})`;
+    resultLine = `✗ ${r.diff} away from ${r.target}`;
   }
+
+  // Time grid
+  const grid = r.grid || buildShareGrid(r.diff, r.timeTaken);
+
+  // Streak
   const history = loadHistory();
   const { streak } = calcStreak(history);
-  const streakLine = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
-  const text = `Numble — ${dateStr}\n${line}${streakLine}\nhttps://annatromps.github.io/numble`;
+  const streakLine = streak > 1 ? `🔥 ${streak}-day streak\n` : '';
+
+  const text = [
+    `Numble — ${dateStr}`,
+    '',
+    resultLine,
+    grid,
+    '',
+    `${streakLine}https://annatromps.github.io/numble`,
+  ].join('\n');
+
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 }
 
