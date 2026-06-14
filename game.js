@@ -696,9 +696,9 @@ function shareResult() {
   let text;
   if (shareR.mode === 'free' && !countdownResult) {
     // Pure free-mode play — no countdown was done
-    const resultLine = shareR.diff === 0 ? `🎯 ${shareR.target} — solved!` : `✗ ${shareR.diff} away from ${shareR.target}`;
+    const resultLine = shareR.diff === 0 ? `✅ ${shareR.target} solved!` : `❌ ${shareR.diff} away from ${shareR.target}`;
     text = [
-      `Numble — ${dateStr} (Free Time)`,
+      `Numble ${dateStr} (Free Time)`,
       '',
       resultLine,
       '',
@@ -710,13 +710,13 @@ function shareResult() {
     let resultLine;
     if (shareR.diff === 0) {
       const timeStr = shareR.timeTaken <= 30 ? `${shareR.timeTaken}s` : `+${shareR.timeTaken - 30}s overtime`;
-      resultLine = `🎯 ${shareR.target} — ${pts} pts (${timeStr})`;
+      resultLine = `✅ ${shareR.target} in ${timeStr} (${pts} pts)`;
     } else {
-      resultLine = `✗ ${shareR.diff} away — ${pts} pts`;
+      resultLine = `❌ ${shareR.diff} away (${pts} pts)`;
     }
     const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
     text = [
-      `Numble — ${dateStr}`,
+      `Numble ${dateStr}`,
       '',
       resultLine,
       grid,
