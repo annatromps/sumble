@@ -224,7 +224,8 @@ function calcScore(diff, timeTaken) {
 }
 
 // ── Game state ──
-let puzzle, tiles, steps, currentNums, selected1, selected2, selectedOp;
+let puzzle, tiles, steps, currentNums;
+let expr = []; // [{type:'num', val, id} | {type:'op', sym}]
 let timerInterval, timeLeft, gameOver;
 let todayKey;
 let gameMode = 'countdown'; // 'countdown' | 'free'
@@ -253,9 +254,7 @@ function init() {
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
   steps = [];
   currentNums = tiles.map(t => ({ val: t.val, id: t.id }));
-  selected1 = null;
-  selected2 = null;
-  selectedOp = null;
+  expr = [];
   gameOver = false;
   timeLeft = 30;
   modeLocked = false;
@@ -387,25 +386,56 @@ function renderTiles() {
   area.innerHTML = '';
   const origTileIds = new Set(tiles.map(t => t.id));
 
+  const exprNumIds = new Set(expr.filter(t => t.type === 'num').map(t => t.id));
+
   tiles.forEach(t => {
     const isUsed = !currentNums.find(n => n.id === t.id);
-    const isSel = (selected1 && selected1.id === t.id) || (selected2 && selected2.id === t.id);
+    const isSel = exprNumIds.has(t.id);
     const div = document.createElement('div');
     div.className = 'tile ' + t.type + (isUsed ? ' used' : '') + (isSel ? ' selected' : '');
     div.onclick = () => selectTile(t.id);
-    div.innerHTML = `<div class="tile-tag">${t.type}</div><div class="tile-val">${t.val}</div>`;
+    div.innerHTML = `<div class="tile-val">${t.val}</div>`;
     area.appendChild(div);
   });
 
   const intermediates = currentNums.filter(n => !origTileIds.has(n.id));
   intermediates.forEach(n => {
-    const isSel = (selected1 && selected1.id === n.id) || (selected2 && selected2.id === n.id);
+    const isSel = exprNumIds.has(n.id);
     const div = document.createElement('div');
     div.className = 'tile small' + (isSel ? ' selected' : '');
     div.onclick = () => selectTile(n.id);
-    div.innerHTML = `<div class="tile-tag">result</div><div class="tile-val">${n.val}</div>`;
+    div.innerHTML = `<div class="tile-val">${n.val}</div>`;
     area.appendChild(div);
   });
+}
+
+// ── BODMAS evaluator ──
+function evaluateExpr(tokens) {
+  const nums = tokens.filter(t => t.type === 'num').map(t => t.val);
+  const ops  = tokens.filter(t => t.type === 'op').map(t => t.sym);
+
+  // × and ÷ first
+  let i = 0;
+  while (i < ops.length) {
+    if (ops[i] === '×' || ops[i] === '÷') {
+      const a = nums[i], b = nums[i + 1];
+      if (ops[i] === '÷') {
+        if (b === 0 || a % b !== 0) return { error: 'Must divide evenly' };
+      }
+      const r = ops[i] === '×' ? a * b : a / b;
+      nums.splice(i, 2, r);
+      ops.splice(i, 1);
+    } else {
+      i++;
+    }
+  }
+
+  // + and − second
+  let result = nums[0];
+  for (let j = 0; j < ops.length; j++) {
+    result = ops[j] === '+' ? result + nums[j + 1] : result - nums[j + 1];
+  }
+  return { val: result };
 }
 
 function selectTile(id) {
@@ -413,27 +443,20 @@ function selectTile(id) {
   const num = currentNums.find(n => n.id === id);
   if (!num) return;
 
-  if (selected1 && selected1.id === id && !selectedOp) {
-    selected1 = null;
-    updateOpButtons(false);
-    renderTiles(); updateExpr();
-    return;
-  }
-  if (selected2 && selected2.id === id) {
-    selected2 = null;
-    renderTiles(); updateExpr(); checkApplyReady();
+  // Tap an already-in-expr number → remove it and everything after it
+  const idx = expr.findIndex(t => t.type === 'num' && t.id === id);
+  if (idx !== -1) {
+    expr = expr.slice(0, idx);
+    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
     return;
   }
 
-  if (!selected1) {
-    selected1 = num;
-    updateOpButtons(true);
-  } else if (selectedOp && !selected2) {
-    selected2 = num;
-  } else if (!selectedOp) {
-    selected1 = num;
+  // Can only add a number when expr is empty or last token is an op
+  const last = expr[expr.length - 1];
+  if (expr.length === 0 || (last && last.type === 'op')) {
+    expr.push({ type: 'num', val: num.val, id: num.id });
+    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
   }
-  renderTiles(); updateExpr(); checkApplyReady();
 }
 
 function updateOpButtons(enabled) {
@@ -442,82 +465,91 @@ function updateOpButtons(enabled) {
   });
 }
 
-function selectOp(op) {
-  if (!selected1) return;
-  selectedOp = op;
+function syncOpButtons() {
+  const last = expr[expr.length - 1];
+  const hasNum = last && last.type === 'num';
+  updateOpButtons(hasNum || (last && last.type === 'op'));
+  // Highlight whichever op is the last token
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
-  const map = { '+': 'opPlus', '−': 'opMinus', '×': 'opMul', '÷': 'opDiv' };
-  document.getElementById(map[op]).classList.add('active');
-  updateExpr(); checkApplyReady();
+  if (last && last.type === 'op') {
+    const map = { '+': 'opPlus', '−': 'opMinus', '×': 'opMul', '÷': 'opDiv' };
+    const btn = map[last.sym];
+    if (btn) document.getElementById(btn).classList.add('active');
+  }
+}
+
+function selectOp(sym) {
+  const last = expr[expr.length - 1];
+  if (!last) return; // nothing in expr yet
+  if (last.type === 'op') {
+    expr[expr.length - 1] = { type: 'op', sym }; // replace
+  } else if (last.type === 'num') {
+    expr.push({ type: 'op', sym });
+  }
+  syncOpButtons(); updateExpr(); checkApplyReady();
 }
 
 function checkApplyReady() {
-  const ready = selected1 && selectedOp && selected2;
+  const last = expr[expr.length - 1];
+  const ready = expr.length >= 3 && last && last.type === 'num';
   document.getElementById('applyBtn').disabled = !ready;
 }
 
 function updateExpr() {
   const disp = document.getElementById('exprDisplay');
-  if (!selected1 && !selectedOp && !selected2) {
+  if (expr.length === 0) {
     disp.innerHTML = `<span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>`;
     return;
   }
-  let html = '';
-  if (selected1) html += `<span class="expr-token num">${selected1.val}</span>`;
-  if (selectedOp) html += `<span class="expr-token op">${selectedOp}</span>`;
-  if (selected2) html += `<span class="expr-token num">${selected2.val}</span>`;
-  disp.innerHTML = html;
+  disp.innerHTML = expr.map(t =>
+    t.type === 'num'
+      ? `<span class="expr-token num">${t.val}</span>`
+      : `<span class="expr-token op">${t.sym}</span>`
+  ).join('');
 }
 
 function applyStep() {
-  if (!selected1 || !selectedOp || !selected2) return;
-  tryApply(selected1, selected2);
-}
+  const last = expr[expr.length - 1];
+  if (expr.length < 3 || !last || last.type !== 'num') return;
 
-function tryApply(a, b) {
-  // Lock mode once the player starts
+  // Lock mode on first step
   if (!modeLocked) {
     modeLocked = true;
     document.getElementById('modeCountdown').disabled = true;
     document.getElementById('modeFree').disabled = true;
   }
 
-  const opSym = selectedOp;
-  let result;
-  if (opSym === '+') result = a.val + b.val;
-  else if (opSym === '−') result = a.val - b.val;
-  else if (opSym === '×') result = a.val * b.val;
-  else if (opSym === '÷') {
-    if (b.val === 0 || a.val % b.val !== 0) { showToast('Must divide evenly'); return; }
-    result = a.val / b.val;
-  }
-
+  const evalResult = evaluateExpr(expr);
+  if (evalResult.error) { showToast(evalResult.error); return; }
+  const result = evalResult.val;
   if (result <= 0) { showToast('Result must be positive'); return; }
 
+  const usedNums = expr.filter(t => t.type === 'num');
+  const exprStr = expr.map(t => t.type === 'num' ? t.val : t.sym).join(' ');
   const snapshot = { nums: [...currentNums] };
-  steps.push({ a, b, op: opSym, result, snapshot, stepStr: `${a.val} ${opSym} ${b.val} = ${result}` });
+  steps.push({ usedNums, result, snapshot, stepStr: `${exprStr} = ${result}` });
 
   const newId = Date.now();
-  currentNums = currentNums.filter(n => n.id !== a.id && n.id !== b.id);
+  const usedIds = new Set(usedNums.map(n => n.id));
+  currentNums = currentNums.filter(n => !usedIds.has(n.id));
   currentNums.push({ val: result, id: newId });
 
-  selected1 = null; selected2 = null; selectedOp = null;
+  expr = [];
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
   renderTiles(); updateExpr(); updateStepsLog(); checkSubmit();
   document.getElementById('applyBtn').disabled = true;
 
-  if (result === puzzle.target) {
-    setTimeout(() => submitAnswer(), 300);
-  }
+  if (result === puzzle.target) setTimeout(() => submitAnswer(), 300);
 }
 
 function updateStepsLog() {
   const log = document.getElementById('stepsLog');
   if (steps.length === 0) { log.innerHTML = ''; return; }
-  log.innerHTML = steps.map(s =>
-    `<div class="step-line">${s.a.val} ${s.op} ${s.b.val} = <span>${s.result}</span></div>`
-  ).join('');
+  log.innerHTML = steps.map(s => {
+    const [lhs, rhs] = s.stepStr.split(' = ');
+    return `<div class="step-line">${lhs} = <span>${rhs}</span></div>`;
+  }).join('');
 }
 
 function checkSubmit() {
@@ -528,16 +560,15 @@ function undoStep() {
   if (steps.length === 0) return;
   const last = steps.pop();
   currentNums = [...last.snapshot.nums];
-  selected1 = null; selected2 = null; selectedOp = null;
+  expr = [];
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
-  renderTiles(); updateExpr(); updateStepsLog();
-  checkSubmit();
+  renderTiles(); updateExpr(); updateStepsLog(); checkSubmit();
   document.getElementById('applyBtn').disabled = true;
 }
 
 function clearWorking() {
-  selected1 = null; selected2 = null; selectedOp = null;
+  expr = [];
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
   renderTiles(); updateExpr();

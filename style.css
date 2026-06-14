@@ -25,7 +25,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 16px 48px;
+  padding: 20px 16px 32px;
+  overflow-x: hidden;
 }
 
 /* ── Header ── */
@@ -232,7 +233,7 @@ h1 span { color: var(--accent); }
 
 .tile {
   width: 72px;
-  height: 80px;
+  height: 68px;
   border: 1.5px solid var(--tile-border);
   background: var(--tile-bg);
   border-radius: 6px;
@@ -359,7 +360,8 @@ h1 span { color: var(--accent); }
   font-size: 13px;
   color: var(--muted);
   line-height: 1.8;
-  min-height: 28px;
+  height: 72px; /* fixed: 3 lines × ~24px — never grows */
+  overflow: hidden;
   margin-bottom: 16px;
 }
 
@@ -612,9 +614,8 @@ h1 span { color: var(--accent); }
 
   .tiles-area { gap: 7px; }
 
-  .tile { width: 64px; height: 72px; }
+  .tile { width: 64px; height: 60px; }
   .tile-val { font-size: 22px; }
-  .tile-tag { font-size: 7px; }
 
   .op-btn { width: 52px; height: 52px; font-size: 18px; }
 
@@ -630,7 +631,7 @@ h1 span { color: var(--accent); }
 }
 
 @media (max-width: 360px) {
-  .tile { width: 54px; height: 64px; }
+  .tile { width: 54px; height: 56px; }
   .tile-val { font-size: 19px; }
   .op-btn { width: 46px; height: 46px; font-size: 17px; }
 }
