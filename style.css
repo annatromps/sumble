@@ -253,6 +253,12 @@ h1 span { color: var(--accent); }
   width: 100%;
 }
 
+.tiles-row .tile {
+  flex: 1;
+  max-width: 72px;
+  width: auto;
+}
+
 .tile {
   width: clamp(52px, 14vw, 72px);
   height: clamp(52px, 12vw, 68px);
