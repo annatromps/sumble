@@ -1037,7 +1037,7 @@ h1 span { color: var(--accent); }
 
   .tile-val { font-size: clamp(17px, 4.5vw, 22px); }
 
-  .op-btn { width: 52px; height: 52px; font-size: 20px; }
+  .op-btn { width: 52px; height: 52px; font-size: 24px; }
 
   .ops-row { gap: 6px; margin-bottom: 6px; }
 
@@ -1045,7 +1045,7 @@ h1 span { color: var(--accent); }
 
   .action-row { gap: 8px; margin-bottom: 4px; }
 
-  .btn { padding: 9px 14px; font-size: 12px; letter-spacing: 0.5px; }
+  .btn { padding: 9px 10px; font-size: 14px; letter-spacing: 0px; }
 
   .expression-display { font-size: 18px; }
 
@@ -1053,5 +1053,5 @@ h1 span { color: var(--accent); }
 }
 
 @media (max-width: 360px) {
-  .op-btn { width: 46px; height: 46px; font-size: 17px; }
+  .op-btn { width: 46px; height: 46px; font-size: 21px; }
 }
