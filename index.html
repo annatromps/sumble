@@ -104,7 +104,7 @@
   <div class="workings-area">
     <div class="workings-label">Working</div>
     <div class="expression-display" id="exprDisplay">
-      <span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>
+      <span style="color:rgba(255,255,255,0.3);font-size:14px;font-style:italic">Select a number, then an operator, then another number</span>
     </div>
     <div class="ops-row">
       <button class="op-btn" id="opPlus" onclick="selectOp('+')" disabled>+</button>
@@ -113,9 +113,8 @@
       <button class="op-btn" id="opDiv" onclick="selectOp('÷')" disabled>÷</button>
       <button class="op-btn" id="deleteBtn" onclick="deleteLast()" disabled
         style="font-size:18px">⌫</button>
-      <button class="op-btn" id="applyBtn" onclick="applyStep()" disabled
-        style="color:var(--accent);border-color:var(--accent);font-size:24px">=</button>
     </div>
+    <button class="apply-btn" id="applyBtn" onclick="applyStep()" disabled>=</button>
     <div class="steps-log" id="stepsLog"></div>
   </div>
 
