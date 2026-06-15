@@ -135,7 +135,7 @@
 </div>
 
 <!-- ── Result view ── -->
-<div id="resultView" style="display:none; width:100%; max-width:480px">
+<div id="resultView" style="display:none; width:100%; max-width:480px; overflow-y:auto; max-height:100%">
 
   <button class="back-nav-btn" onclick="viewCompletedPuzzle()">← View Completed Puzzle</button>
 
@@ -158,7 +158,7 @@
     </div>
 
     <hr class="modal-divider" style="margin:20px 0 16px">
-    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;text-align:center">Play Another</div>
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;text-align:center">Infinite Mode</div>
     <div class="mode-toggle" style="margin:0 auto 12px">
       <button class="mode-btn active" id="infiniteModeCountdown" onclick="setInfiniteMode('countdown')">⏱ Countdown</button>
       <button class="mode-btn" id="infiniteModeFree" onclick="setInfiniteMode('free')">∞ Free</button>
