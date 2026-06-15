@@ -99,16 +99,18 @@
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
   </div>
 
-  <div class="tiles-area" id="tilesArea"></div>
-
   <div class="workings-area">
-    <div class="workings-label">Working</div>
     <div class="blackboard" id="blackboard">
       <div class="blackboard-steps" id="stepsLog"></div>
       <div class="expression-display" id="exprDisplay">
-        <span style="color:rgba(255,255,255,0.3);font-size:14px;font-style:italic">Select a number, then an operator, then another number</span>
+        <span style="color:rgba(255,255,255,0.3);font-size:16px;font-family:'Caveat',cursive">tap a number to start…</span>
       </div>
     </div>
+  </div>
+
+  <div class="tiles-area" id="tilesArea"></div>
+
+  <div class="ops-area">
     <div class="ops-row">
       <button class="op-btn" id="opPlus" onclick="selectOp('+')" disabled>+</button>
       <button class="op-btn" id="opMinus" onclick="selectOp('−')" disabled>−</button>
@@ -118,7 +120,7 @@
         style="font-size:18px">⌫</button>
     </div>
     <button class="apply-btn" id="applyBtn" onclick="applyStep()" disabled>=</button>
-  </div>
+  </div><!-- end ops-area -->
 
   <div class="action-row">
     <button class="btn btn-ghost" onclick="undoStep()">Undo</button>
