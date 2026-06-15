@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Caveat:wght@500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -338,9 +338,10 @@ h1 span { color: var(--accent); }
 }
 
 .blackboard-steps {
-  font-size: 13px;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
   font-weight: 600;
-  font-style: italic;
+  font-style: normal;
   color: rgba(255,255,255,0.45);
   line-height: 2;
   max-height: 72px;
@@ -352,9 +353,10 @@ h1 span { color: var(--accent); }
 .blackboard-steps .hint-step { color: rgba(230,180,80,0.7); font-style: italic; }
 
 .expression-display {
-  font-size: 22px;
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
   font-weight: 700;
-  font-style: italic;
+  font-style: normal;
   min-height: 40px;
   background: transparent;
   border: none;
