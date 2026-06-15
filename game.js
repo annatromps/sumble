@@ -868,7 +868,61 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   if (infBtn) infBtn.textContent = isInfinite ? '▶ Next' : '▶ Infinite Mode';
 
   showView('result');
+  maybeShowInstallBanner();
 }
+
+// ── Install prompt ──
+let _deferredInstallPrompt = null;
+const INSTALL_KEY = 'sumble_installed';
+const PLAY_COUNT_KEY = 'sumble_play_count';
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem(INSTALL_KEY, '1');
+  _deferredInstallPrompt = null;
+  hideInstallBanner();
+});
+
+function maybeShowInstallBanner() {
+  if (localStorage.getItem(INSTALL_KEY)) return;
+  const count = parseInt(localStorage.getItem(PLAY_COUNT_KEY) || '0', 10) + 1;
+  localStorage.setItem(PLAY_COUNT_KEY, count);
+  if (count % 5 !== 0) return;
+
+  const banner = document.getElementById('installBanner');
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.navigator.standalone === true;
+  if (isStandalone) { localStorage.setItem(INSTALL_KEY, '1'); return; }
+
+  if (_deferredInstallPrompt) {
+    document.getElementById('installBannerSub').textContent = 'Play Sumble like an app — no browser needed';
+    document.getElementById('installBannerBtn').onclick = async () => {
+      _deferredInstallPrompt.prompt();
+      const { outcome } = await _deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') localStorage.setItem(INSTALL_KEY, '1');
+      hideInstallBanner();
+    };
+    banner.style.display = 'flex';
+  } else if (isIOS) {
+    document.getElementById('installBannerSub').textContent = 'Tap Share then "Add to Home Screen"';
+    document.getElementById('installBannerBtn').onclick = () => {
+      localStorage.setItem(INSTALL_KEY, '1');
+      hideInstallBanner();
+    };
+    document.getElementById('installBannerBtn').textContent = 'Got it';
+    banner.style.display = 'flex';
+  }
+}
+
+function hideInstallBanner() {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+document.getElementById('installBannerDismiss').onclick = hideInstallBanner;
 
 let infiniteMode = localStorage.getItem('sumble_infinite_mode') || 'countdown';
 let isInfinite = false;

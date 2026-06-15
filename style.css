@@ -858,6 +858,71 @@ h1 span { color: var(--accent); }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
 
+/* ── Install banner ── */
+.install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 250;
+  box-shadow: 0 4px 20px rgba(82,68,184,0.12);
+}
+
+.install-banner-icon { font-size: 28px; flex-shrink: 0; }
+
+.install-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.install-banner-text strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.install-banner-text span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.install-banner-btn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.install-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
 /* ── How-to-play modal ── */
 .modal-overlay {
   position: fixed;
