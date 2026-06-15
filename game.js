@@ -862,7 +862,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Admin ──
-const ADMIN_EMAIL = 'annatrompetas@gmail.com';
+const ADMIN_EMAIL = 'annamtrompetas@gmail.com';
 const wantsAdmin = new URLSearchParams(window.location.search).has('admin');
 
 function initAdmin() {
