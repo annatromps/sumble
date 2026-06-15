@@ -223,31 +223,14 @@ function calcStats(history) {
 function renderStats(history) {
   const el = document.getElementById('resultStats');
   if (!el) return;
-  const { total, avgPts, best, solved, solvedInTime, dist, withPts } = calcStats(history);
+  const { total, avgPts, solvedInTime } = calcStats(history);
   if (total === 0) { el.innerHTML = ''; return; }
-
-  const maxDist = Math.max(...dist.map(d => d.count), 1);
-
   el.innerHTML = `
     <div class="stats-grid">
       <div class="stats-cell"><div class="stats-num">${total}</div><div class="stats-lbl">Played</div></div>
-      <div class="stats-cell"><div class="stats-num">${solved}</div><div class="stats-lbl">Solved</div></div>
+      <div class="stats-cell"><div class="stats-num">${solvedInTime}</div><div class="stats-lbl">Solved in time</div></div>
       <div class="stats-cell"><div class="stats-num">${avgPts !== null ? avgPts : '—'}</div><div class="stats-lbl">Avg pts</div></div>
-      <div class="stats-cell"><div class="stats-num">${solvedInTime}</div><div class="stats-lbl">In time</div></div>
     </div>
-    ${withPts > 0 ? `
-    <div class="stats-dist-title">Score distribution</div>
-    <div class="stats-dist">
-      ${dist.map(d => `
-        <div class="stats-dist-row">
-          <div class="stats-dist-label">${d.label}</div>
-          <div class="stats-dist-bar-wrap">
-            <div class="stats-dist-bar${d.count === Math.max(...dist.map(x => x.count)) && d.count > 0 ? ' best' : ''}" style="width:${Math.max(4, Math.round((d.count / maxDist) * 100))}%">
-              ${d.count > 0 ? d.count : ''}
-            </div>
-          </div>
-        </div>`).join('')}
-    </div>` : ''}
   `;
 }
 

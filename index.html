@@ -94,6 +94,8 @@
 <!-- ── Game view ── -->
 <div id="gameView" style="display:none; width:100%; max-width:480px">
 
+  <button class="back-nav-btn" id="backToResultBtn" onclick="backToResult()" style="display:none">← Back to Results</button>
+
   <div class="timer-bar-wrap" id="timerBarWrap">
     <div class="timer-label">
       <span>Time</span>
@@ -133,9 +135,6 @@
     <button class="btn btn-ghost" onclick="clearWorking()">Clear</button>
     <button class="btn btn-hint" id="hintBtn" onclick="getHint()">💡 Hint (3)</button>
     <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
-  </div>
-  <div style="text-align:center;margin-top:4px">
-    <button class="btn btn-ghost" id="backToResultBtn" onclick="backToResult()" style="display:none">← Back to Results</button>
   </div>
 
 </div>
