@@ -1020,6 +1020,7 @@ function viewCompletedPuzzle() {
   showView('game');
   document.getElementById('backToResultRow').style.display = '';
   document.getElementById('exprDisplay').innerHTML = '';
+  updateStepsLog();
   document.querySelector('.ops-area').style.display = 'none';
   document.querySelector('.action-row').style.display = 'none';
 }
