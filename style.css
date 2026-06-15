@@ -241,8 +241,10 @@ h1 span { color: var(--accent); }
   flex-direction: column;
   gap: 10px;
   align-items: center;
+  justify-content: center;
   margin-bottom: 24px;
   width: 100%;
+  height: 156px;
 }
 
 .tiles-row {
@@ -345,12 +347,13 @@ h1 span { color: var(--accent); }
     inset 0 2px 12px rgba(0,0,0,0.5),
     0 2px 8px rgba(0,0,0,0.15),
     inset 0 0 0 2px rgba(80,60,40,0.4);
-  min-height: 160px;
+  height: 160px;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  overflow: hidden;
 }
 
 .blackboard-steps {
@@ -859,7 +862,7 @@ h1 span { color: var(--accent); }
 @media (max-width: 480px) {
   body { padding: 16px 12px 40px; }
 
-  .tiles-area { gap: 7px; }
+  .tiles-area { gap: 7px; height: 124px; }
 
   .tile-val { font-size: clamp(17px, 4.5vw, 22px); }
 
