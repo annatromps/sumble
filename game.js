@@ -417,12 +417,12 @@ function restoreTodayResult(diff, storedGrid) {
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
-    scoreClass = 'exact'; headlineText = 'Exact';
+    scoreClass = 'exact'; headlineText = '🎯 Exact';
     detailText = 'You solved today\'s puzzle';
     scoreEl.textContent = puzzle.target;
   } else {
     scoreClass = diff <= 10 ? 'close' : 'miss';
-    headlineText = diff <= 5 ? 'Very close' : diff <= 10 ? 'Close' : 'Not quite';
+    headlineText = diff <= 5 ? '🔥 Very close' : diff <= 10 ? '👍 Close' : '😬 Not quite';
     detailText = `${diff} away from ${puzzle.target}`;
     scoreEl.textContent = puzzle.target - diff;
   }
@@ -804,16 +804,16 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
 
   let scoreClass, headlineText, detailText;
   if (diff === 0) {
-    scoreClass = 'exact'; headlineText = 'Exact';
+    scoreClass = 'exact'; headlineText = '🎯 Exact';
     detailText = `Hit ${puzzle.target}${timeStr}`;
   } else if (diff <= 5) {
-    scoreClass = 'close'; headlineText = 'Very close';
+    scoreClass = 'close'; headlineText = '🔥 Very close';
     detailText = `${playerBest}, ${diff} away${timeStr}`;
   } else if (diff <= 10) {
-    scoreClass = 'close'; headlineText = 'Close';
+    scoreClass = 'close'; headlineText = '👍 Close';
     detailText = `${playerBest}, ${diff} away${timeStr}`;
   } else {
-    scoreClass = 'miss'; headlineText = 'Not quite';
+    scoreClass = 'miss'; headlineText = '😬 Not quite';
     detailText = `${playerBest}, ${diff} away from ${puzzle.target}${timeStr}`;
   }
 
