@@ -1022,7 +1022,7 @@ h1 span { color: var(--accent); }
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-  body { padding: 12px 12px 12px; }
+  body { padding: 12px 12px 16px; }
 
   header { margin-bottom: 8px; }
 
