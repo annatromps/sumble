@@ -595,7 +595,7 @@ function checkApplyReady() {
 function updateExpr() {
   const disp = document.getElementById('exprDisplay');
   if (expr.length === 0) {
-    disp.innerHTML = `<span style="color:var(--muted);font-size:14px">Select a number, then an operator, then another number</span>`;
+    disp.innerHTML = `<span style="color:rgba(255,255,255,0.45);font-size:20px;font-family:'Caveat',cursive">tap a number to start…</span>`;
     return;
   }
   disp.innerHTML = expr.map(t =>
