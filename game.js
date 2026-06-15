@@ -358,6 +358,8 @@ function init() {
 }
 
 function startGame() {
+  isInfinite = false;
+  showInfiniteBanner(false);
   showView('game');
   document.getElementById('timerBarWrap').style.display = '';
   document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
@@ -807,12 +809,32 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   showView('result');
 }
 
-let infiniteMode = 'countdown';
+let infiniteMode = localStorage.getItem('sumble_infinite_mode') || 'countdown';
+let isInfinite = false;
 
-function setInfiniteMode(mode) {
+function switchInfiniteMode(mode) {
   infiniteMode = mode;
-  document.getElementById('infiniteModeCountdown').classList.toggle('active', mode === 'countdown');
-  document.getElementById('infiniteModeFree').classList.toggle('active', mode === 'free');
+  localStorage.setItem('sumble_infinite_mode', mode);
+  document.getElementById('infBtnCountdown').classList.toggle('active', mode === 'countdown');
+  document.getElementById('infBtnFree').classList.toggle('active', mode === 'free');
+  // Apply immediately if mid-game
+  if (isInfinite && !gameOver) {
+    clearInterval(timerInterval);
+    gameMode = mode;
+    timeLeft = 30;
+    freeTimeElapsed = 0;
+    document.getElementById('timerFill').style.display = mode === 'countdown' ? '' : 'none';
+    document.getElementById('pauseBtn').style.display = mode === 'countdown' ? '' : 'none';
+    if (mode === 'countdown') startTimer(); else startFreeTimer();
+  }
+}
+
+function showInfiniteBanner(visible) {
+  const banner = document.getElementById('infiniteBanner');
+  if (!banner) return;
+  banner.style.display = visible ? '' : 'none';
+  document.getElementById('infBtnCountdown').classList.toggle('active', infiniteMode === 'countdown');
+  document.getElementById('infBtnFree').classList.toggle('active', infiniteMode === 'free');
 }
 
 function startInfinite() {
@@ -834,6 +856,7 @@ function startInfinite() {
   modeLocked = true;
   countdownResult = null;
   hintsUsed = 0;
+  isInfinite = true;
   gameMode = infiniteMode;
   const solForHints = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   hintSolution = solForHints ? solForHints.steps : null;
@@ -847,14 +870,11 @@ function startInfinite() {
   updateHintBtn();
 
   showView('game');
+  showInfiniteBanner(true);
   document.getElementById('timerBarWrap').style.display = '';
   document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
   document.getElementById('pauseBtn').style.display = gameMode === 'countdown' ? '' : 'none';
-  if (gameMode === 'countdown') {
-    startTimer();
-  } else {
-    startFreeTimer();
-  }
+  if (gameMode === 'countdown') startTimer(); else startFreeTimer();
 }
 
 function continueInFree() {
