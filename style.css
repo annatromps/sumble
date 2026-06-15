@@ -174,6 +174,9 @@ h1 span { color: var(--accent); }
 .target-area {
   margin-bottom: 10px;
   text-align: center;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
 }
 
 .target-label {
