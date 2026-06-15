@@ -596,6 +596,28 @@ h1 span { color: var(--accent); }
   width: 100%;
 }
 
+/* ── Infinite mode mini toggle ── */
+.inf-toggle {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.inf-btn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.inf-btn + .inf-btn { border-left: 1.5px solid var(--border); }
+.inf-btn.active { background: var(--accent); color: #fff; }
+
 /* ── Back nav ── */
 .back-nav-btn {
   display: inline-flex;

@@ -82,18 +82,19 @@
 <!-- ── Target (always visible during game + result) ── -->
 <div class="target-area" id="targetArea" style="display:none">
   <div class="target-label">Target</div>
-  <div class="target-number" id="targetDisplay">—</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px">
+    <div class="target-number" id="targetDisplay">—</div>
+    <div id="infiniteBanner" style="display:none">
+      <div class="inf-toggle">
+        <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
+        <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── Game view ── -->
 <div id="gameView" style="display:none; width:100%; max-width:480px">
-
-  <div id="infiniteBanner" style="display:none;margin-bottom:6px">
-    <div class="mode-toggle" style="margin:0 auto;width:fit-content">
-      <button class="mode-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱ Countdown</button>
-      <button class="mode-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞ Free</button>
-    </div>
-  </div>
 
   <div class="timer-bar-wrap" id="timerBarWrap">
     <div class="timer-label">
