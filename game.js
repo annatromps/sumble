@@ -908,7 +908,7 @@ function startInfinite() {
   hintSolution = solForHints ? solForHints.steps : null;
 
   document.getElementById('targetDisplay').textContent = puzzle.target;
-  document.getElementById('backToResultBtn').style.display = 'none';
+  document.getElementById('backToResultRow').style.display = 'none';
   renderTiles(); updateExpr(); updateStepsLog();
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('applyBtn').disabled = true;
@@ -1018,7 +1018,7 @@ function viewCompletedPuzzle() {
   const fill = document.getElementById('timerFill');
   if (fill) fill.style.width = frozenTimerBar;
   showView('game');
-  document.getElementById('backToResultBtn').style.display = '';
+  document.getElementById('backToResultRow').style.display = '';
   document.getElementById('exprDisplay').innerHTML = '';
   document.querySelector('.ops-area').style.display = 'none';
   document.querySelector('.action-row').style.display = 'none';
@@ -1028,7 +1028,7 @@ function backToResult() {
   document.querySelector('.ops-area').style.display = '';
   document.querySelector('.action-row').style.display = '';
   showView('result');
-  document.getElementById('backToResultBtn').style.display = 'none';
+  document.getElementById('backToResultRow').style.display = 'none';
 }
 
 function showToast(msg, duration = 2000) {
