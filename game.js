@@ -248,6 +248,8 @@ function calcStreak(history) {
 function renderStreakBar(streak, best) {
   const bar = document.getElementById('streakBar');
   if (!bar) return;
+  const shouldShow = streak > 0 || best > 0;
+  bar.dataset.shouldShow = shouldShow ? 'true' : 'false';
   if (streak === 0 && best === 0) {
     bar.style.display = 'none';
     return;
@@ -298,6 +300,9 @@ function showView(name) {
   document.getElementById('gameView').style.display   = name === 'game'   ? '' : 'none';
   document.getElementById('resultView').style.display = name === 'result' ? '' : 'none';
   document.getElementById('targetArea').style.display = name === 'game'   ? '' : 'none';
+  // Hide streak bar during game to keep header height stable
+  const streakBar = document.getElementById('streakBar');
+  if (streakBar) streakBar.style.display = name === 'game' ? 'none' : streakBar.dataset.shouldShow === 'true' ? 'flex' : 'none';
 }
 
 function init() {
