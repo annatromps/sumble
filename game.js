@@ -852,7 +852,7 @@ function buildShareText() {
       '',
       resultLine,
       '',
-      `${streakLine}https://annatromps.github.io/numble`,
+      `${streakLine}https://annatromps.github.io/sumble`,
     ].join('\n');
   } else {
     // Countdown result (possibly after continuing in free)
@@ -872,7 +872,7 @@ function buildShareText() {
       resultLine,
       grid,
       '',
-      `${streakLine}https://annatromps.github.io/numble`,
+      `${streakLine}https://annatromps.github.io/sumble`,
     ].join('\n');
   }
 
