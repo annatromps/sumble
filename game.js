@@ -783,7 +783,7 @@ function shareResult() {
       ? `✅ ${shareR.target} solved${freeTime}`
       : `❌ ${shareR.diff} away from ${shareR.target}${freeTime}`;
     text = [
-      `Numble ${dateStr} (Free Time)`,
+      `Sumble ${dateStr} (Free Time)`,
       '',
       resultLine,
       '',
@@ -802,7 +802,7 @@ function shareResult() {
     }
     const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
     text = [
-      `Numble ${dateStr}`,
+      `Sumble ${dateStr}`,
       '',
       resultLine,
       grid,
