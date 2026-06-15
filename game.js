@@ -589,8 +589,15 @@ function selectTile(id) {
     return;
   }
 
-  // Can only add a number when expr is empty or last token is an op
+  // If expr is exactly one number (no op yet), swap it for the new selection
   const last = expr[expr.length - 1];
+  if (expr.length === 1 && last.type === 'num') {
+    expr[0] = { type: 'num', val: num.val, id: num.id };
+    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+    return;
+  }
+
+  // Can only add a number when expr is empty or last token is an op
   if (expr.length === 0 || (last && last.type === 'op')) {
     expr.push({ type: 'num', val: num.val, id: num.id });
     syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
