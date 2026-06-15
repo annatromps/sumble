@@ -472,9 +472,11 @@ function renderTiles() {
   const area = document.getElementById('tilesArea');
   area.innerHTML = '';
   const origTileIds = new Set(tiles.map(t => t.id));
-
   const exprNumIds = new Set(expr.filter(t => t.type === 'num').map(t => t.id));
 
+  // Row 1: original tiles, always one line
+  const origRow = document.createElement('div');
+  origRow.className = 'tiles-row';
   tiles.forEach(t => {
     const isUsed = !currentNums.find(n => n.id === t.id);
     const isSel = exprNumIds.has(t.id);
@@ -482,18 +484,25 @@ function renderTiles() {
     div.className = 'tile ' + t.type + (isUsed ? ' used' : '') + (isSel ? ' selected' : '');
     div.onclick = () => selectTile(t.id);
     div.innerHTML = `<div class="tile-val">${t.val}</div>`;
-    area.appendChild(div);
+    origRow.appendChild(div);
   });
+  area.appendChild(origRow);
 
+  // Row 2: intermediate results in a different colour
   const intermediates = currentNums.filter(n => !origTileIds.has(n.id));
-  intermediates.forEach(n => {
-    const isSel = exprNumIds.has(n.id);
-    const div = document.createElement('div');
-    div.className = 'tile small' + (isSel ? ' selected' : '');
-    div.onclick = () => selectTile(n.id);
-    div.innerHTML = `<div class="tile-val">${n.val}</div>`;
-    area.appendChild(div);
-  });
+  if (intermediates.length > 0) {
+    const intRow = document.createElement('div');
+    intRow.className = 'tiles-row';
+    intermediates.forEach(n => {
+      const isSel = exprNumIds.has(n.id);
+      const div = document.createElement('div');
+      div.className = 'tile result' + (isSel ? ' selected' : '');
+      div.onclick = () => selectTile(n.id);
+      div.innerHTML = `<div class="tile-val">${n.val}</div>`;
+      intRow.appendChild(div);
+    });
+    area.appendChild(intRow);
+  }
 }
 
 // ── BODMAS evaluator ──

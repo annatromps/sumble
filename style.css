@@ -238,17 +238,24 @@ h1 span { color: var(--accent); }
 /* ── Number tiles ── */
 .tiles-area {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
   margin-bottom: 24px;
-  max-width: 520px;
+  width: 100%;
+}
+
+.tiles-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: center;
   width: 100%;
 }
 
 .tile {
-  width: 72px;
-  height: 68px;
+  width: clamp(52px, 14vw, 72px);
+  height: clamp(52px, 12vw, 68px);
   border: 1.5px solid var(--tile-border);
   background: var(--tile-bg);
   border-radius: 6px;
@@ -283,6 +290,8 @@ h1 span { color: var(--accent); }
 
 .tile.big .tile-val { color: var(--big); }
 .tile.small .tile-val { color: var(--small); }
+.tile.result .tile-val { color: var(--accent2); }
+.tile.result { border-color: rgba(31,168,118,0.4); background: rgba(31,168,118,0.08); }
 
 .tile.selected {
   border-color: var(--accent);
@@ -788,8 +797,7 @@ h1 span { color: var(--accent); }
 
   .tiles-area { gap: 7px; }
 
-  .tile { width: 64px; height: 60px; }
-  .tile-val { font-size: 22px; }
+  .tile-val { font-size: clamp(17px, 4.5vw, 22px); }
 
   .op-btn { width: 52px; height: 52px; font-size: 20px; }
 
@@ -805,7 +813,5 @@ h1 span { color: var(--accent); }
 }
 
 @media (max-width: 360px) {
-  .tile { width: 54px; height: 56px; }
-  .tile-val { font-size: 19px; }
   .op-btn { width: 46px; height: 46px; font-size: 17px; }
 }
