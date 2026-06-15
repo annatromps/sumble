@@ -43,7 +43,21 @@
   </div>
 </div>
 
-<!-- ── Admin bar (visible only with ?admin in URL) ── -->
+<!-- ── Admin login modal ── -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-header">
+      <div class="modal-title">Admin</div>
+    </div>
+    <input type="email" id="adminEmailInput" placeholder="your email" autocomplete="email"
+      style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:4px;font-family:'Nunito',sans-serif;font-size:14px;margin-bottom:12px;outline:none;background:var(--bg);color:var(--text)"
+      onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="btn btn-primary" onclick="adminLogin()" style="width:100%">Log in</button>
+    <div id="adminLoginError" style="color:var(--danger);font-size:13px;margin-top:8px;display:none">Not authorised.</div>
+  </div>
+</div>
+
+<!-- ── Admin bar (visible once logged in) ── -->
 <div class="admin-bar" id="adminBar" style="display:none">
   <span class="admin-label">🔧 Admin</span>
   <button class="admin-btn" onclick="adminReset()">Reset Today</button>

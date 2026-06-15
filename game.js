@@ -862,11 +862,28 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Admin ──
-const isAdmin = new URLSearchParams(window.location.search).has('admin');
+const ADMIN_EMAIL = 'annatrompetas@gmail.com';
+const wantsAdmin = new URLSearchParams(window.location.search).has('admin');
 
 function initAdmin() {
-  if (!isAdmin) return;
-  document.getElementById('adminBar').style.display = 'flex';
+  if (!wantsAdmin) return;
+  if (sessionStorage.getItem('numbleAdmin') === '1') {
+    document.getElementById('adminBar').style.display = 'flex';
+  } else {
+    document.getElementById('adminLoginModal').classList.add('open');
+    setTimeout(() => document.getElementById('adminEmailInput').focus(), 100);
+  }
+}
+
+function adminLogin() {
+  const val = document.getElementById('adminEmailInput').value.trim().toLowerCase();
+  if (val === ADMIN_EMAIL) {
+    sessionStorage.setItem('numbleAdmin', '1');
+    document.getElementById('adminLoginModal').classList.remove('open');
+    document.getElementById('adminBar').style.display = 'flex';
+  } else {
+    document.getElementById('adminLoginError').style.display = 'block';
+  }
 }
 
 function adminReset() {
