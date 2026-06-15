@@ -1020,9 +1020,13 @@ function viewCompletedPuzzle() {
   showView('game');
   document.getElementById('backToResultBtn').style.display = '';
   document.getElementById('exprDisplay').innerHTML = '';
+  document.querySelector('.ops-area').style.display = 'none';
+  document.querySelector('.action-row').style.display = 'none';
 }
 
 function backToResult() {
+  document.querySelector('.ops-area').style.display = '';
+  document.querySelector('.action-row').style.display = '';
   showView('result');
   document.getElementById('backToResultBtn').style.display = 'none';
 }
