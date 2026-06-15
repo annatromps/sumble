@@ -316,7 +316,7 @@ h1 span { color: var(--accent); }
 .workings-area {
   width: 100%;
   max-width: 480px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .workings-label {
@@ -400,7 +400,7 @@ h1 span { color: var(--accent); }
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -413,9 +413,9 @@ h1 span { color: var(--accent); }
   font-weight: 600;
   color: var(--muted);
   line-height: 1.8;
-  height: 72px; /* fixed: 3 lines × ~24px — never grows */
+  max-height: 72px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .steps-log .step-line { color: var(--text); }
@@ -430,7 +430,7 @@ h1 span { color: var(--accent); }
   justify-content: center;
   max-width: 480px;
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .btn {
