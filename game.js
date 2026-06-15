@@ -399,13 +399,11 @@ function restoreTodayResult(diff, storedGrid) {
   const { streak } = calcStreak(history);
   streakEl.textContent = streak > 0 ? `🔥 ${streak}-day streak` : '';
 
-  const solResult = solve(puzzle.tiles.map(t => t.val), puzzle.target);
+  const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {
-    const d2 = Math.abs(solResult.val - puzzle.target);
-    let solHtml = `<div style="color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">One solution (${d2 === 0 ? 'exact' : d2 + ' away'})</div>`;
-    solHtml += solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
-    solDiv.innerHTML = solHtml;
+    solDiv.innerHTML = solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
   }
+  solDiv.style.display = 'none';
 
   window._lastResult = { diff, target: puzzle.target, playerBest: null, steps: [], timeTaken: null, grid: storedGrid, mode: gameMode };
 }
@@ -785,13 +783,11 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
     : streak === 1 ? '🔥 1-day streak, come back tomorrow!'
     : '';
 
-  const solResult = solve(puzzle.tiles.map(t => t.val), puzzle.target);
+  const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {
-    const d2 = Math.abs(solResult.val - puzzle.target);
-    let solHtml = `<div style="color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">One solution (${d2 === 0 ? 'exact' : d2 + ' away'})</div>`;
-    solHtml += solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
-    solDiv.innerHTML = solHtml;
+    solDiv.innerHTML = solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
   }
+  solDiv.style.display = 'none';
 
   // Show "continue in free" only when countdown ended without exact match
   const canContinue = gameMode === 'countdown' && diff > 0 && !countdownResult;
@@ -959,17 +955,24 @@ function adminReset() {
   location.reload();
 }
 
+function toggleSolution() {
+  const solDiv = document.getElementById('resultSolution');
+  const btn = document.getElementById('viewSolBtn');
+  const hidden = solDiv.style.display === 'none';
+  solDiv.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? 'Hide Solution' : 'View Solution';
+}
+
 function adminToggleSolution() {
   const panel = document.getElementById('adminSolution');
   if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
 
-  const sol = solve(puzzle.tiles.map(t => t.val), puzzle.target);
-  if (!sol) { panel.innerHTML = '<em>No solution found</em>'; panel.style.display = 'block'; return; }
+  const sol = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
+  if (!sol) { panel.innerHTML = '<em>No exact solution found</em>'; panel.style.display = 'block'; return; }
 
-  const exact = sol.val === puzzle.target;
   const nums = puzzle.tiles.map(t => t.val).join(', ');
   panel.innerHTML = `
-    <div class="admin-sol-header">Target: <strong>${puzzle.target}</strong> &nbsp;|&nbsp; Numbers: <strong>${nums}</strong> &nbsp;|&nbsp; Steps: <strong>${sol.steps.length}</strong> &nbsp;|&nbsp; <span style="color:${exact ? 'var(--accent2)' : 'var(--danger)'}">${exact ? 'Exact' : sol.val + ' (' + Math.abs(sol.val - puzzle.target) + ' away)'}</span></div>
+    <div class="admin-sol-header">Target: <strong>${puzzle.target}</strong> &nbsp;|&nbsp; Numbers: <strong>${nums}</strong> &nbsp;|&nbsp; Steps: <strong>${sol.steps.length}</strong> &nbsp;|&nbsp; <span style="color:var(--accent2)">Exact</span></div>
     ${sol.steps.map(s => `<div class="admin-sol-step">${s}</div>`).join('')}
   `;
   panel.style.display = 'block';
