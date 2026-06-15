@@ -130,10 +130,11 @@ h1 span { color: var(--accent); }
 /* ── Mode toggle ── */
 .mode-toggle {
   display: flex;
-  gap: 0;
+  gap: 4px;
+  background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: 5px;
-  overflow: hidden;
+  border-radius: 999px;
+  padding: 4px;
   margin-top: 12px;
   width: fit-content;
   margin-left: auto;
@@ -144,25 +145,27 @@ h1 span { color: var(--accent); }
   font-family: 'Nunito', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 10px 22px;
+  padding: 10px 24px;
   border: none;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 .mode-btn + .mode-btn {
-  border-left: 1.5px solid var(--border);
+  border-left: none;
 }
 
 .mode-btn.active {
   background: var(--accent);
-  color: var(--bg);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(82,68,184,0.25);
 }
 
 .mode-btn:disabled {
@@ -640,8 +643,8 @@ h1 span { color: var(--accent); }
 }
 
 .start-play-btn {
-  font-size: 16px;
-  padding: 14px 24px;
+  font-size: 18px;
+  padding: 20px 24px;
   letter-spacing: 2px;
   width: 100%;
 }
