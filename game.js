@@ -306,6 +306,7 @@ let puzzle, tiles, steps, currentNums;
 let expr = []; // [{type:'num', val, id} | {type:'op', sym}]
 let timerInterval, timeLeft, freeTimeElapsed, gameOver;
 let todayKey, dailyTarget;
+let infiniteSeed = null;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
 let countdownResult = null; // locked-in countdown score, preserved if player continues in free
@@ -378,6 +379,13 @@ function init() {
   renderStreakBar(streak, best);
   document.getElementById('startStreakDisplay').textContent =
     streak > 1 ? `🔥 ${streak}-day streak` : streak === 1 ? '🔥 1-day streak' : '';
+
+  // Shared infinite puzzle link → load that specific puzzle
+  const urlSeed = new URLSearchParams(window.location.search).get('p');
+  if (urlSeed) {
+    startInfinite(parseInt(urlSeed, 10));
+    return;
+  }
 
   // Already played today → skip start screen, go to results
   if (history[todayKey] !== undefined) {
@@ -890,13 +898,19 @@ function showInfiniteBanner(visible) {
   document.getElementById('infBtnFree').classList.toggle('active', infiniteMode === 'free');
 }
 
-function startInfinite() {
+function startInfinite(seed) {
   // Generate a fresh random puzzle, different from today's daily target
-  let newPuzzle;
-  do {
-    const seed = (Math.random() * 0xffffffff) >>> 0;
+  let newPuzzle, usedSeed;
+  if (seed) {
+    usedSeed = seed;
     newPuzzle = generatePuzzle(mulberry32(seed));
-  } while (newPuzzle.target === dailyTarget);
+  } else {
+    do {
+      usedSeed = (Math.random() * 0xffffffff) >>> 0;
+      newPuzzle = generatePuzzle(mulberry32(usedSeed));
+    } while (newPuzzle.target === dailyTarget);
+  }
+  infiniteSeed = usedSeed;
   puzzle = newPuzzle;
 
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
@@ -971,12 +985,15 @@ function buildShareText() {
     const resultLine = shareR.diff === 0
       ? `✅ ${shareR.target} solved${freeTime}`
       : `❌ ${shareR.diff} away from ${shareR.target}${freeTime}`;
+    const baseUrl = isInfinite && infiniteSeed
+      ? `https://annatromps.github.io/sumble?p=${infiniteSeed}`
+      : 'https://annatromps.github.io/sumble';
     text = [
-      `Sumble ${dateStr} (Free Time)`,
+      `Sumble ${isInfinite ? `Puzzle #${infiniteSeed}` : dateStr} (Free Time)`,
       '',
       resultLine,
       '',
-      `${streakLine}https://annatromps.github.io/sumble`,
+      `${streakLine}${baseUrl}`,
     ].join('\n');
   } else {
     // Countdown result (possibly after continuing in free)
@@ -990,13 +1007,16 @@ function buildShareText() {
       resultLine = `❌ ${shareR.diff} away (${pts} pts)${hintTag}`;
     }
     const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
+    const baseUrl = isInfinite && infiniteSeed
+      ? `https://annatromps.github.io/sumble?p=${infiniteSeed}`
+      : 'https://annatromps.github.io/sumble';
     text = [
-      `Sumble ${dateStr}`,
+      `Sumble ${isInfinite ? `Puzzle #${infiniteSeed}` : dateStr}`,
       '',
       resultLine,
       grid,
       '',
-      `${streakLine}https://annatromps.github.io/sumble`,
+      `${streakLine}${baseUrl}`,
     ].join('\n');
   }
 
@@ -1039,6 +1059,15 @@ function backToResult() {
   document.getElementById('blackboard').classList.remove('blackboard--review');
   showView('result');
   document.getElementById('backToResultRow').style.display = 'none';
+}
+
+function goHome() {
+  if (gameOver) {
+    // Restore result view cleanly if we're viewing completed puzzle
+    backToResult();
+  } else {
+    showView('start');
+  }
 }
 
 function showToast(msg, duration = 2000) {

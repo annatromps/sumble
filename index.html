@@ -13,7 +13,7 @@
 <meta name="twitter:title" content="Sumble">
 <meta name="twitter:description" content="A daily numbers puzzle. Six numbers, one target, 30 seconds. Can you make it?">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 <!-- ── Persistent header ── -->
 <header>
   <div class="header-top">
-    <h1>SUM<span>BLE</span></h1>
+    <h1 onclick="goHome()" style="cursor:pointer">SUM<span>BLE</span></h1>
     <button class="help-btn" onclick="openHowTo()" aria-label="How to play">?</button>
   </div>
   <div class="game-date" id="dateDisplay"></div>
@@ -208,6 +208,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=4"></script>
+<script src="game.js?v=5"></script>
 </body>
 </html>
