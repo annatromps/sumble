@@ -273,7 +273,7 @@ function calcScore(diff, timeTaken, hints = 0) {
 let puzzle, tiles, steps, currentNums;
 let expr = []; // [{type:'num', val, id} | {type:'op', sym}]
 let timerInterval, timeLeft, freeTimeElapsed, gameOver;
-let todayKey;
+let todayKey, dailyTarget;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
 let countdownResult = null; // locked-in countdown score, preserved if player continues in free
@@ -312,6 +312,7 @@ function init() {
   const seed = getDailySeed();
   const rng = mulberry32(seed);
   puzzle = generatePuzzle(rng);
+  dailyTarget = puzzle.target;
 
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
   steps = [];
@@ -815,10 +816,13 @@ function setInfiniteMode(mode) {
 }
 
 function startInfinite() {
-  // Generate a fresh random puzzle
-  const seed = (Math.random() * 0xffffffff) >>> 0;
-  const rng = mulberry32(seed);
-  puzzle = generatePuzzle(rng);
+  // Generate a fresh random puzzle, different from today's daily target
+  let newPuzzle;
+  do {
+    const seed = (Math.random() * 0xffffffff) >>> 0;
+    newPuzzle = generatePuzzle(mulberry32(seed));
+  } while (newPuzzle.target === dailyTarget);
+  puzzle = newPuzzle;
 
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
   steps = [];
