@@ -110,6 +110,46 @@ function solve(numbers, target) {
   return best;
 }
 
+// Finds the shortest exact solution — used for hints
+function solveShort(numbers, target) {
+  let best = null;
+
+  function search(nums, steps) {
+    if (best && steps.length >= best.steps.length) return; // prune longer paths
+    for (let i = 0; i < nums.length; i++) {
+      if (nums[i].val === target) {
+        if (!best || steps.length < best.steps.length) best = { steps: [...steps] };
+        return;
+      }
+    }
+    if (nums.length < 2) return;
+    for (let i = 0; i < nums.length; i++) {
+      for (let j = 0; j < nums.length; j++) {
+        if (i === j) continue;
+        const a = nums[i], b = nums[j];
+        const rest = nums.filter((_, k) => k !== i && k !== j);
+        const ops = [
+          { val: a.val + b.val, str: `${a.val} + ${b.val} = ${a.val + b.val}` },
+          { val: a.val - b.val, str: `${a.val} − ${b.val} = ${a.val - b.val}` },
+          { val: a.val * b.val, str: `${a.val} × ${b.val} = ${a.val * b.val}` },
+        ];
+        if (b.val !== 0 && a.val % b.val === 0)
+          ops.push({ val: a.val / b.val, str: `${a.val} ÷ ${b.val} = ${a.val / b.val}` });
+        for (const op of ops) {
+          if (op.val > 0 && !rest.some(n => n.val === op.val && nums.filter(n2 => n2.val === op.val).length > rest.filter(n2 => n2.val === op.val).length)) {
+            search([...rest, { val: op.val }], [...steps, op.str]);
+          } else if (op.val > 0) {
+            search([...rest, { val: op.val }], [...steps, op.str]);
+          }
+        }
+      }
+    }
+  }
+
+  search(numbers.map(n => ({ val: n })), []);
+  return best;
+}
+
 // ── Streak (localStorage) ──
 const STORAGE_KEY = 'numble_history';
 
@@ -276,8 +316,8 @@ function init() {
   modeLocked = false;
   countdownResult = null;
   hintsUsed = 0;
-  const solForHints = solve(puzzle.tiles.map(t => t.val), puzzle.target);
-  hintSolution = (solForHints && solForHints.val === puzzle.target) ? solForHints.steps : null;
+  const solForHints = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
+  hintSolution = solForHints ? solForHints.steps : null;
 
   const dateStr = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
