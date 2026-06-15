@@ -128,12 +128,14 @@ function solveShort(numbers, target) {
         if (i === j) continue;
         const a = nums[i], b = nums[j];
         const rest = nums.filter((_, k) => k !== i && k !== j);
-        const ops = [
-          { val: a.val + b.val, str: `${a.val} + ${b.val} = ${a.val + b.val}` },
-          { val: a.val - b.val, str: `${a.val} − ${b.val} = ${a.val - b.val}` },
-          { val: a.val * b.val, str: `${a.val} × ${b.val} = ${a.val * b.val}` },
-        ];
-        if (b.val !== 0 && a.val % b.val === 0)
+        const ops = [];
+        if (b.val !== 0) // skip + 0
+          ops.push({ val: a.val + b.val, str: `${a.val} + ${b.val} = ${a.val + b.val}` });
+        if (b.val !== 0 && a.val !== b.val) // skip − 0 and a − a = 0
+          ops.push({ val: a.val - b.val, str: `${a.val} − ${b.val} = ${a.val - b.val}` });
+        if (b.val !== 1 && a.val !== 1) // skip × 1
+          ops.push({ val: a.val * b.val, str: `${a.val} × ${b.val} = ${a.val * b.val}` });
+        if (b.val !== 0 && b.val !== 1 && a.val % b.val === 0) // skip ÷ 1
           ops.push({ val: a.val / b.val, str: `${a.val} ÷ ${b.val} = ${a.val / b.val}` });
         for (const op of ops) {
           if (op.val > 0 && !rest.some(n => n.val === op.val && nums.filter(n2 => n2.val === op.val).length > rest.filter(n2 => n2.val === op.val).length)) {
