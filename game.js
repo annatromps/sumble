@@ -891,7 +891,7 @@ function maybeShowInstallBanner() {
   if (localStorage.getItem(INSTALL_KEY)) return;
   const count = parseInt(localStorage.getItem(PLAY_COUNT_KEY) || '0', 10) + 1;
   localStorage.setItem(PLAY_COUNT_KEY, count);
-  if (count % 5 !== 0) return;
+  if (count < 2 || (count - 2) % 5 !== 0) return;
 
   const banner = document.getElementById('installBanner');
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
