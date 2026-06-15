@@ -806,6 +806,9 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   window._lastResult = result;
   if (gameMode === 'countdown' && !countdownResult) countdownResult = result;
 
+  const infBtn = document.querySelector('#resultView .btn-primary[onclick="startInfinite()"]');
+  if (infBtn) infBtn.textContent = isInfinite ? '▶ Next' : '▶ Infinite Mode';
+
   showView('result');
 }
 
