@@ -1041,7 +1041,7 @@ h1 span { color: var(--accent); }
 
   .tile-val { font-size: clamp(17px, 4.5vw, 22px); }
 
-  .op-btn { width: 52px; height: 52px; font-size: 24px; }
+  .op-btn { width: 52px; height: 52px; font-size: 26px; font-weight: 900; }
 
   .ops-row { gap: 6px; margin-bottom: 6px; }
 
@@ -1057,5 +1057,5 @@ h1 span { color: var(--accent); }
 }
 
 @media (max-width: 360px) {
-  .op-btn { width: 46px; height: 46px; font-size: 21px; }
+  .op-btn { width: 46px; height: 46px; font-size: 22px; font-weight: 900; }
 }
