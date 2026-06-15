@@ -1034,6 +1034,17 @@ function closeHowTo() {
   document.getElementById('howToModal').classList.remove('open');
 }
 
+let _numBuf = '', _numTimer = null;
+
+function _flushNumBuf() {
+  const val = parseInt(_numBuf, 10);
+  _numBuf = '';
+  if (isNaN(val)) return;
+  // Find an available (unused, unselected) tile matching this value
+  const match = currentNums.find(n => n.val === val && !tiles.find(t => t.id === n.id && t.used));
+  if (match) selectTile(match.id);
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeHowTo();
@@ -1046,6 +1057,35 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Backspace') {
     const deleteBtn = document.getElementById('deleteBtn');
     if (deleteBtn && !deleteBtn.disabled) deleteLast();
+  }
+
+  // Only handle digit/operator keys during active game, not when typing in an input
+  if (gameOver || paused || e.target.tagName === 'INPUT') return;
+  if (document.getElementById('gameView').style.display === 'none') return;
+
+  if (e.key >= '0' && e.key <= '9') {
+    _numBuf += e.key;
+    clearTimeout(_numTimer);
+    // If no available tile could start with this prefix, flush immediately
+    const possible = currentNums.filter(n =>
+      String(n.val).startsWith(_numBuf) && !tiles.find(t => t.id === n.id && t.used)
+    );
+    if (possible.length === 1 && String(possible[0].val) === _numBuf) {
+      _flushNumBuf(); // exact unique match — select now
+    } else if (possible.length === 0) {
+      _numBuf = ''; // no match possible, discard
+    } else {
+      _numTimer = setTimeout(_flushNumBuf, 600); // wait for more digits
+    }
+    return;
+  }
+
+  // Operator keys
+  const opMap = { '+': '+', '-': '−', '*': '×', 'x': '×', 'X': '×', '/': '÷' };
+  if (opMap[e.key]) {
+    const op = opMap[e.key];
+    const btn = document.querySelector(`.op-btn[onclick="selectOp('${op}')"]`);
+    if (btn && !btn.disabled) selectOp(op);
   }
 });
 
