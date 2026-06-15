@@ -137,6 +137,8 @@
 <!-- ── Result view ── -->
 <div id="resultView" style="display:none; width:100%; max-width:480px">
 
+  <button class="back-nav-btn" onclick="viewCompletedPuzzle()">← View Completed Puzzle</button>
+
   <div class="result-card">
     <div class="result-headline" id="resultHeadline"></div>
     <div class="result-score" id="resultScore"></div>
@@ -152,7 +154,6 @@
         <button class="btn btn-ghost" onclick="copyResult()" style="flex:1">Copy</button>
         <button class="btn btn-primary" onclick="shareResult()" style="flex:1">Share</button>
       </div>
-      <button class="btn btn-ghost" onclick="viewCompletedPuzzle()" style="width:100%">View Completed Puzzle</button>
       <button class="btn btn-ghost" id="continueBtn" onclick="continueInFree()" style="display:none">Continue in Free Mode →</button>
     </div>
   </div>

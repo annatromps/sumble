@@ -596,6 +596,24 @@ h1 span { color: var(--accent); }
   width: 100%;
 }
 
+/* ── Back nav ── */
+.back-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0 10px;
+  transition: color 0.15s;
+}
+.back-nav-btn:hover { color: var(--text); }
+
 /* ── Result card ── */
 .result-card {
   background: var(--surface);
