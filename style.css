@@ -331,6 +331,7 @@ h1 span { color: var(--accent); }
 .expression-display {
   font-size: 20px;
   font-weight: 700;
+  font-style: italic;
   min-height: 52px;
   background: var(--surface);
   border: 1.5px solid var(--border);

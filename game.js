@@ -565,6 +565,7 @@ function syncOpButtons() {
   const last = expr[expr.length - 1];
   const hasNum = last && last.type === 'num';
   updateOpButtons(hasNum || (last && last.type === 'op'));
+  document.getElementById('deleteBtn').disabled = expr.length === 0;
   // Highlight whichever op is the last token
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   if (last && last.type === 'op') {
@@ -663,10 +664,19 @@ function undoStep() {
   document.getElementById('applyBtn').disabled = true;
 }
 
+function deleteLast() {
+  if (expr.length === 0) return;
+  const removed = expr[expr.length - 1];
+  expr = expr.slice(0, -1);
+  document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+  syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+}
+
 function clearWorking() {
   expr = [];
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
+  document.getElementById('deleteBtn').disabled = true;
   renderTiles(); updateExpr();
   document.getElementById('applyBtn').disabled = true;
 }
@@ -907,6 +917,10 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     const applyBtn = document.getElementById('applyBtn');
     if (applyBtn && !applyBtn.disabled) applyStep();
+  }
+  if (e.key === 'Backspace') {
+    const deleteBtn = document.getElementById('deleteBtn');
+    if (deleteBtn && !deleteBtn.disabled) deleteLast();
   }
 });
 
