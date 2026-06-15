@@ -193,43 +193,16 @@
       <button class="modal-close" onclick="closeHowTo()" aria-label="Close">✕</button>
     </div>
 
-    <div class="modal-section">
-      <div class="modal-section-title">The Goal</div>
-      <div class="modal-body">
-        Use the six number tiles to reach the <strong>target</strong> using +, −, ×, ÷.<br>
-        You don't have to use all the numbers, and you can use each operator as many times as you like.
-      </div>
-    </div>
+    <div class="modal-rule"><span class="modal-rule-icon">🎯</span><span>Use the six tiles to reach the <strong>target</strong> with +&nbsp;−&nbsp;×&nbsp;÷. You don't have to use them all.</span></div>
+    <div class="modal-rule"><span class="modal-rule-icon">➕</span><span>Tap a number, then an operator, then another number. Hit <strong>=</strong> to apply. Results become new tiles.</span></div>
+    <div class="modal-rule"><span class="modal-rule-icon">⚠️</span><span>Division must be exact. All results must be positive.</span></div>
 
     <hr class="modal-divider">
 
-    <div class="modal-section">
-      <div class="modal-section-title">The Numbers</div>
-      <div class="modal-rule"><span class="modal-rule-icon" style="color:var(--big)">●</span><span><strong style="color:var(--big)">Big numbers</strong>: one of 25, 50, 75, 100</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon" style="color:var(--small)">●</span><span><strong style="color:var(--small)">Small numbers</strong>: 1 to 10</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">🎯</span><span><strong>Target</strong>: any number 101-999</span></div>
-    </div>
+    <div class="modal-rule"><span class="modal-rule-icon">⏱</span><span><strong>Countdown</strong> — 30 seconds, score based on speed &amp; accuracy.</span></div>
+    <div class="modal-rule"><span class="modal-rule-icon">∞</span><span><strong>Free</strong> — no timer, just solve it.</span></div>
 
-    <hr class="modal-divider">
-
-    <div class="modal-section">
-      <div class="modal-section-title">The Rules</div>
-      <div class="modal-rule"><span class="modal-rule-icon">1.</span><span>Tap a number tile, then an operator, then another number. You can chain multiple operators, e.g. <strong>25 + 3 × 8</strong> is evaluated with BODMAS.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">2.</span><span>Results of each step become new tiles you can use in the next step.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">3.</span><span>Division must be exact, no fractions.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">4.</span><span>All results must be positive.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">5.</span><span>Hit <strong>=</strong> to apply a step. Hit <strong>Submit</strong> when you're done.</span></div>
-    </div>
-
-    <hr class="modal-divider">
-
-    <div class="modal-section">
-      <div class="modal-section-title">Modes</div>
-      <div class="modal-rule"><span class="modal-rule-icon">⏱</span><span><strong>Countdown</strong>: 30 seconds, then auto-submit. Score is based on speed and accuracy.</span></div>
-      <div class="modal-rule"><span class="modal-rule-icon">∞</span><span><strong>Free</strong>: No timer. Just solve it.</span></div>
-    </div>
-
-    <button class="btn btn-primary" onclick="closeHowTo()" style="width:100%;margin-top:8px">Let's go!</button>
+    <button class="btn btn-primary" onclick="closeHowTo()" style="width:100%;margin-top:16px">Let's go!</button>
   </div>
 </div>
 
