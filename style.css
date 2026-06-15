@@ -364,6 +364,17 @@ h1 span { color: var(--accent); }
   overflow: hidden;
 }
 
+.blackboard--review {
+  height: auto;
+  min-height: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
+  justify-content: flex-start;
+}
+.blackboard--review::-webkit-scrollbar { width: 4px; }
+.blackboard--review::-webkit-scrollbar-track { background: transparent; }
+.blackboard--review::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
 .blackboard-steps {
   font-family: 'Caveat', cursive;
   font-size: 20px;

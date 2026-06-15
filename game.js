@@ -1023,11 +1023,13 @@ function viewCompletedPuzzle() {
   updateStepsLog();
   document.querySelector('.ops-area').style.display = 'none';
   document.querySelector('.action-row').style.display = 'none';
+  document.getElementById('blackboard').classList.add('blackboard--review');
 }
 
 function backToResult() {
   document.querySelector('.ops-area').style.display = '';
   document.querySelector('.action-row').style.display = '';
+  document.getElementById('blackboard').classList.remove('blackboard--review');
   showView('result');
   document.getElementById('backToResultRow').style.display = 'none';
 }
