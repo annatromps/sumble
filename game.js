@@ -1019,6 +1019,7 @@ function viewCompletedPuzzle() {
   if (fill) fill.style.width = frozenTimerBar;
   showView('game');
   document.getElementById('backToResultBtn').style.display = '';
+  document.getElementById('exprDisplay').innerHTML = '';
 }
 
 function backToResult() {
