@@ -806,6 +806,53 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   showView('result');
 }
 
+let infiniteMode = 'countdown';
+
+function setInfiniteMode(mode) {
+  infiniteMode = mode;
+  document.getElementById('infiniteModeCountdown').classList.toggle('active', mode === 'countdown');
+  document.getElementById('infiniteModeFree').classList.toggle('active', mode === 'free');
+}
+
+function startInfinite() {
+  // Generate a fresh random puzzle
+  const seed = (Math.random() * 0xffffffff) >>> 0;
+  const rng = mulberry32(seed);
+  puzzle = generatePuzzle(rng);
+
+  tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
+  steps = [];
+  currentNums = tiles.map(t => ({ val: t.val, id: t.id }));
+  expr = [];
+  gameOver = false;
+  timeLeft = 30;
+  freeTimeElapsed = 0;
+  modeLocked = true;
+  countdownResult = null;
+  hintsUsed = 0;
+  gameMode = infiniteMode;
+  const solForHints = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
+  hintSolution = solForHints ? solForHints.steps : null;
+
+  document.getElementById('targetDisplay').textContent = puzzle.target;
+  document.getElementById('backToResultBtn').style.display = 'none';
+  renderTiles(); updateExpr(); updateStepsLog();
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('applyBtn').disabled = true;
+  document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
+  updateHintBtn();
+
+  showView('game');
+  document.getElementById('timerBarWrap').style.display = '';
+  document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
+  document.getElementById('pauseBtn').style.display = gameMode === 'countdown' ? '' : 'none';
+  if (gameMode === 'countdown') {
+    startTimer();
+  } else {
+    startFreeTimer();
+  }
+}
+
 function continueInFree() {
   gameMode = 'free';
   gameOver = false;
