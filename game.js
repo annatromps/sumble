@@ -196,10 +196,19 @@ function buildShareGrid(diff, timeTaken) {
   return '🟥'.repeat(6 + otBlocks);
 }
 
-function recordResult(dateKey, diff, grid) {
+function recordResult(dateKey, diff, grid, pts, solvedInTime) {
   const history = loadHistory();
-  history[dateKey] = { diff, grid, ts: Date.now() };
+  history[dateKey] = { diff, grid, ts: Date.now(), pts, solvedInTime };
   saveHistory(history);
+}
+
+function calcStats(history) {
+  const entries = Object.values(history).filter(e => e.pts !== undefined);
+  if (entries.length === 0) return { avgPts: null, solvedPct: null, total: 0 };
+  const avgPts = Math.round(entries.reduce((s, e) => s + e.pts, 0) / entries.length);
+  const solvedCount = entries.filter(e => e.solvedInTime).length;
+  const solvedPct = Math.round((solvedCount / entries.length) * 100);
+  return { avgPts, solvedPct, total: entries.length };
 }
 
 function calcStreak(history) {
@@ -734,7 +743,9 @@ function submitAnswer() {
   const grid = gameMode === 'countdown' ? buildShareGrid(diff, timeTaken) : null;
 
   // Save to history
-  recordResult(todayKey, diff, grid);
+  const pts = calcScore(diff, timeTaken, hintsUsed);
+  const solvedInTime = diff === 0 && gameMode === 'countdown' && timeTaken <= 30;
+  recordResult(todayKey, diff, grid, pts, solvedInTime);
 
   showResult(closest.val, diff, timeTaken, grid, hintsUsed);
   if (diff === 0 && typeof confetti === 'function') {
@@ -790,6 +801,14 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   streakEl.textContent = streak > 1 ? `🔥 ${streak}-day streak`
     : streak === 1 ? '🔥 1-day streak, come back tomorrow!'
     : '';
+
+  const statsEl = document.getElementById('resultStats');
+  const { avgPts, solvedPct, total } = calcStats(history);
+  if (total >= 2 && avgPts !== null) {
+    statsEl.innerHTML = `<span>Avg ${avgPts} pts</span><span class="result-stats-dot">·</span><span>${solvedPct}% solved in time</span>`;
+  } else {
+    statsEl.innerHTML = '';
+  }
 
   const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {

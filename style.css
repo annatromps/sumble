@@ -690,6 +690,18 @@ h1 span { color: var(--accent); }
   margin-bottom: 16px;
 }
 
+.result-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.result-stats-dot { opacity: 0.4; }
+
 .result-solution {
   font-size: 13px;
   font-weight: 600;
