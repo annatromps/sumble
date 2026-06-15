@@ -264,7 +264,7 @@ function renderStreakBar(streak, best) {
 // ── Scoring ──
 function calcScore(diff, timeTaken, hints = 0) {
   const base = diff === 0
-    ? Math.max(700, 1000 - Math.floor(timeTaken) * 10)
+    ? 1000 - Math.floor(timeTaken) * 10
     : Math.max(0, 500 - diff * 5);
   return Math.max(0, base - hints * HINT_PENALTY);
 }
