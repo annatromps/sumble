@@ -203,12 +203,52 @@ function recordResult(dateKey, diff, grid, pts, solvedInTime) {
 }
 
 function calcStats(history) {
-  const entries = Object.values(history).filter(e => e.pts !== undefined);
-  if (entries.length === 0) return { avgPts: null, solvedPct: null, total: 0 };
-  const avgPts = Math.round(entries.reduce((s, e) => s + e.pts, 0) / entries.length);
-  const solvedCount = entries.filter(e => e.solvedInTime).length;
-  const solvedPct = Math.round((solvedCount / entries.length) * 100);
-  return { avgPts, solvedPct, total: entries.length };
+  const all = Object.values(history);
+  const total = all.length;
+  const withPts = all.filter(e => e.pts !== undefined);
+  const avgPts = withPts.length ? Math.round(withPts.reduce((s, e) => s + e.pts, 0) / withPts.length) : null;
+  const best = withPts.length ? Math.max(...withPts.map(e => e.pts)) : null;
+  const solved = all.filter(e => e.diff === 0).length;
+  const solvedInTime = all.filter(e => e.solvedInTime).length;
+  // Score distribution buckets (only entries with pts)
+  const dist = [
+    { label: '900+', count: withPts.filter(e => e.pts >= 900).length },
+    { label: '800+', count: withPts.filter(e => e.pts >= 800 && e.pts < 900).length },
+    { label: '700+', count: withPts.filter(e => e.pts >= 700 && e.pts < 800).length },
+    { label: '<700', count: withPts.filter(e => e.pts < 700).length },
+  ];
+  return { total, avgPts, best, solved, solvedInTime, dist, withPts: withPts.length };
+}
+
+function renderStats(history) {
+  const el = document.getElementById('resultStats');
+  if (!el) return;
+  const { total, avgPts, best, solved, solvedInTime, dist, withPts } = calcStats(history);
+  if (total === 0) { el.innerHTML = ''; return; }
+
+  const maxDist = Math.max(...dist.map(d => d.count), 1);
+
+  el.innerHTML = `
+    <div class="stats-grid">
+      <div class="stats-cell"><div class="stats-num">${total}</div><div class="stats-lbl">Played</div></div>
+      <div class="stats-cell"><div class="stats-num">${solved}</div><div class="stats-lbl">Solved</div></div>
+      <div class="stats-cell"><div class="stats-num">${avgPts !== null ? avgPts : '—'}</div><div class="stats-lbl">Avg pts</div></div>
+      <div class="stats-cell"><div class="stats-num">${solvedInTime}</div><div class="stats-lbl">In time</div></div>
+    </div>
+    ${withPts > 0 ? `
+    <div class="stats-dist-title">Score distribution</div>
+    <div class="stats-dist">
+      ${dist.map(d => `
+        <div class="stats-dist-row">
+          <div class="stats-dist-label">${d.label}</div>
+          <div class="stats-dist-bar-wrap">
+            <div class="stats-dist-bar${d.count === Math.max(...dist.map(x => x.count)) && d.count > 0 ? ' best' : ''}" style="width:${Math.max(4, Math.round((d.count / maxDist) * 100))}%">
+              ${d.count > 0 ? d.count : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}
+  `;
 }
 
 function calcStreak(history) {
@@ -412,6 +452,8 @@ function restoreTodayResult(diff, storedGrid) {
   const history = loadHistory();
   const { streak } = calcStreak(history);
   streakEl.textContent = streak > 0 ? `🔥 ${streak}-day streak` : '';
+
+  renderStats(history);
 
   const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {
@@ -805,13 +847,7 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
     : streak === 1 ? '🔥 1-day streak, come back tomorrow!'
     : '';
 
-  const statsEl = document.getElementById('resultStats');
-  const { avgPts, solvedPct, total } = calcStats(history);
-  if (total >= 2 && avgPts !== null) {
-    statsEl.innerHTML = `<span>Avg ${avgPts} pts</span><span class="result-stats-dot">·</span><span>${solvedPct}% solved in time</span>`;
-  } else {
-    statsEl.innerHTML = '';
-  }
+  renderStats(history);
 
   const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
   if (solResult) {
