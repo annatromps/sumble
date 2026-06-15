@@ -128,6 +128,9 @@
     <button class="btn btn-hint" id="hintBtn" onclick="getHint()">💡 Hint (3)</button>
     <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
   </div>
+  <div style="text-align:center;margin-top:4px">
+    <button class="btn btn-ghost" id="backToResultBtn" onclick="backToResult()" style="display:none">← Back to Results</button>
+  </div>
 
 </div>
 
@@ -145,7 +148,11 @@
     <div class="result-solution" id="resultSolution"></div>
 
     <div class="result-actions">
-      <button class="btn btn-primary result-share-btn" onclick="shareResult()">Copy Result</button>
+      <div style="display:flex;gap:8px;width:100%">
+        <button class="btn btn-ghost" onclick="copyResult()" style="flex:1">Copy</button>
+        <button class="btn btn-primary" onclick="shareResult()" style="flex:1">Share</button>
+      </div>
+      <button class="btn btn-ghost" onclick="viewCompletedPuzzle()" style="width:100%">View Completed Puzzle</button>
       <button class="btn btn-ghost" id="continueBtn" onclick="continueInFree()" style="display:none">Continue in Free Mode →</button>
     </div>
   </div>
@@ -214,6 +221,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

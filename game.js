@@ -394,7 +394,7 @@ function restoreTodayResult(diff, storedGrid) {
 
   headline.textContent = headlineText;
   scoreEl.className = 'result-score ' + scoreClass;
-  detail.textContent = detailText + ' (already played today)';
+  detail.textContent = detailText;
   ptsEl.textContent = '';
 
   const history = loadHistory();
@@ -734,6 +734,9 @@ function submitAnswer() {
   recordResult(todayKey, diff, grid);
 
   showResult(closest.val, diff, timeTaken, grid, hintsUsed);
+  if (diff === 0 && typeof confetti === 'function') {
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+  }
 }
 
 function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
@@ -820,9 +823,9 @@ function continueInFree() {
   showView('game');
 }
 
-function shareResult() {
+function buildShareText() {
   const r = window._lastResult;
-  if (!r) return;
+  if (!r) return null;
   // Always share the countdown result if one exists (even if player continued in free)
   const shareR = countdownResult || r;
 
@@ -873,7 +876,33 @@ function shareResult() {
     ].join('\n');
   }
 
+  return text;
+}
+
+function copyResult() {
+  const text = buildShareText();
+  if (!text) return;
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+}
+
+function shareResult() {
+  const text = buildShareText();
+  if (!text) return;
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+  }
+}
+
+function viewCompletedPuzzle() {
+  showView('game');
+  document.getElementById('backToResultBtn').style.display = '';
+}
+
+function backToResult() {
+  showView('result');
+  document.getElementById('backToResultBtn').style.display = 'none';
 }
 
 function showToast(msg, duration = 2000) {
