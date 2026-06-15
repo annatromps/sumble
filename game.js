@@ -768,12 +768,14 @@ function updateHintBtn() {
   btn.disabled = remaining === 0 || gameOver || !hintSolution;
 }
 
-let frozenTimerText = '0';
+let frozenTimerText = '0', frozenTimerBar = '0%';
 
 function submitAnswer() {
   clearInterval(timerInterval);
   gameOver = true;
   frozenTimerText = document.getElementById('timerCount').textContent;
+  const fill = document.getElementById('timerFill');
+  frozenTimerBar = fill ? fill.style.width : '0%';
   updateHintBtn();
   document.getElementById('pauseBtn').style.display = 'none';
   document.getElementById('pauseModal').classList.remove('open');
@@ -1030,6 +1032,8 @@ function shareResult() {
 function viewCompletedPuzzle() {
   clearInterval(timerInterval);
   document.getElementById('timerCount').textContent = frozenTimerText;
+  const fill = document.getElementById('timerFill');
+  if (fill) fill.style.width = frozenTimerBar;
   showView('game');
   document.getElementById('backToResultBtn').style.display = '';
 }
