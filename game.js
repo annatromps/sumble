@@ -952,8 +952,20 @@ function showInfiniteBanner(visible) {
   document.getElementById('infBtnFree').classList.toggle('active', infiniteMode === 'free');
 }
 
+function getDailyTargetsNearby(daysBefore, daysAfter) {
+  const targets = new Set();
+  const now = new Date();
+  for (let offset = -daysBefore; offset <= daysAfter; offset++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + offset);
+    const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    targets.add(generatePuzzle(mulberry32(seed)).target);
+  }
+  return targets;
+}
+
 function startInfinite(seed) {
-  // Generate a fresh random puzzle, different from today's daily target
+  const forbiddenTargets = getDailyTargetsNearby(7, 30);
   let newPuzzle, usedSeed;
   if (seed) {
     usedSeed = seed;
@@ -962,7 +974,7 @@ function startInfinite(seed) {
     do {
       usedSeed = (Math.random() * 0xffffffff) >>> 0;
       newPuzzle = generatePuzzle(mulberry32(usedSeed));
-    } while (newPuzzle.target === dailyTarget);
+    } while (forbiddenTargets.has(newPuzzle.target));
   }
   infiniteSeed = usedSeed;
   puzzle = newPuzzle;
