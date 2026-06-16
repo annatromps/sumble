@@ -952,20 +952,24 @@ function showInfiniteBanner(visible) {
   document.getElementById('infBtnFree').classList.toggle('active', infiniteMode === 'free');
 }
 
-function getDailyTargetsNearby(daysBefore, daysAfter) {
-  const targets = new Set();
+function puzzleKey(p) {
+  return p.target + '|' + p.tiles.map(t => t.val).sort((a,b) => a-b).join(',');
+}
+
+function getDailyPuzzleKeysNearby(daysBefore, daysAfter) {
+  const keys = new Set();
   const now = new Date();
   for (let offset = -daysBefore; offset <= daysAfter; offset++) {
     const d = new Date(now);
     d.setDate(d.getDate() + offset);
     const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-    targets.add(generatePuzzle(mulberry32(seed)).target);
+    keys.add(puzzleKey(generatePuzzle(mulberry32(seed))));
   }
-  return targets;
+  return keys;
 }
 
 function startInfinite(seed) {
-  const forbiddenTargets = getDailyTargetsNearby(7, 30);
+  const forbiddenKeys = getDailyPuzzleKeysNearby(30, 60);
   let newPuzzle, usedSeed;
   if (seed) {
     usedSeed = seed;
@@ -974,7 +978,7 @@ function startInfinite(seed) {
     do {
       usedSeed = (Math.random() * 0xffffffff) >>> 0;
       newPuzzle = generatePuzzle(mulberry32(usedSeed));
-    } while (forbiddenTargets.has(newPuzzle.target));
+    } while (forbiddenKeys.has(puzzleKey(newPuzzle)));
   }
   infiniteSeed = usedSeed;
   puzzle = newPuzzle;
