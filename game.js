@@ -688,13 +688,22 @@ function applyStep() {
   currentNums = currentNums.filter(n => !usedIds.has(n.id));
   currentNums.push({ val: result, id: newId });
 
-  expr = [];
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
-  updateOpButtons(false);
-  renderTiles(); updateExpr(); updateStepsLog(); checkSubmit();
-  document.getElementById('applyBtn').disabled = true;
+  renderTiles(); updateStepsLog(); checkSubmit();
 
-  if (result === puzzle.target) setTimeout(() => submitAnswer(), 300);
+  if (result === puzzle.target) {
+    expr = [];
+    updateExpr();
+    document.getElementById('applyBtn').disabled = true;
+    setTimeout(() => submitAnswer(), 300);
+  } else {
+    // Auto-select the result tile as the first number of the next step
+    expr = [{ type: 'num', val: result, id: newId }];
+    updateOpButtons(true);
+    updateExpr();
+    document.getElementById('applyBtn').disabled = true;
+    renderTiles();
+  }
 }
 
 function updateStepsLog() {
