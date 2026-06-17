@@ -443,6 +443,7 @@ function startGame() {
 function restoreTodayResult(diff, storedGrid, storedPts) {
   clearInterval(timerInterval);
   gameOver = true;
+  setDailyBadge('daily');
 
   const heroEl    = document.getElementById('resultHero');
   const emojiEl   = document.getElementById('resultEmoji');
