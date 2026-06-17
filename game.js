@@ -19,10 +19,15 @@ function getDailyNumber() {
   return Math.floor((now - launch) / 86400000) + 1;
 }
 
-function setDailyBadge(daily) {
+function setDailyBadge(mode) {
   const badge = document.getElementById('dailyBadge');
-  if (daily) {
+  if (mode === 'daily') {
     badge.textContent = `Daily #${getDailyNumber()}`;
+    badge.className = 'daily-badge';
+    badge.style.display = '';
+  } else if (typeof mode === 'number') {
+    badge.textContent = `Infinite #${mode}`;
+    badge.className = 'daily-badge infinite-badge';
     badge.style.display = '';
   } else {
     badge.style.display = 'none';
@@ -416,7 +421,7 @@ function init() {
 function startGame() {
   isInfinite = false;
   showInfiniteBanner(false);
-  setDailyBadge(true);
+  setDailyBadge('daily');
   showView('game');
   document.getElementById('timerBarWrap').style.display = '';
   document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
@@ -995,6 +1000,12 @@ function getDailyPuzzleKeysNearby(daysBefore, daysAfter) {
 }
 
 function startInfinite(seed) {
+  // Show loading while solver runs (solveShort can block the main thread briefly)
+  showLoadingScreen();
+  setTimeout(() => _startInfiniteWork(seed), 0);
+}
+
+function _startInfiniteWork(seed) {
   const forbiddenKeys = getDailyPuzzleKeysNearby(30, 60);
   let newPuzzle, usedSeed;
   if (seed) {
@@ -1008,6 +1019,9 @@ function startInfinite(seed) {
   }
   infiniteSeed = usedSeed;
   puzzle = newPuzzle;
+
+  const infiniteCount = (parseInt(localStorage.getItem('sumble_infinite_count') || '0', 10) || 0) + 1;
+  localStorage.setItem('sumble_infinite_count', infiniteCount);
 
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
   steps = [];
@@ -1032,13 +1046,15 @@ function startInfinite(seed) {
   document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
   updateHintBtn();
 
-  showView('game');
-  showInfiniteBanner(true);
-  setDailyBadge(false);
-  document.getElementById('timerBarWrap').style.display = '';
-  document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
-  document.getElementById('pauseBtn').style.display = gameMode === 'countdown' ? '' : 'none';
-  if (gameMode === 'countdown') startTimer(); else startFreeTimer();
+  hideLoadingScreen(() => {
+    showView('game');
+    showInfiniteBanner(true);
+    setDailyBadge(infiniteCount);
+    document.getElementById('timerBarWrap').style.display = '';
+    document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
+    document.getElementById('pauseBtn').style.display = gameMode === 'countdown' ? '' : 'none';
+    if (gameMode === 'countdown') startTimer(); else startFreeTimer();
+  });
 }
 
 function continueInFree() {
@@ -1318,41 +1334,35 @@ function adminToggleSolution() {
 }
 
 // ── Loading animation ──
-(function () {
-  const tiles = document.querySelectorAll('.loading-tile');
-  const nums = [1,2,3,4,5,6,7,8,9,10,25,50,75,100];
-  let frame = 0;
+const _loadingSymbols = ['+', '−', '×', '÷', '=', 'Σ', '∞', '²', '√'];
+let _loadingSymbolEl = null;
 
-  // Each tile cycles at a slightly different speed for a slot-machine feel
-  const speeds = [60, 75, 50, 90, 65, 80];
-  const counters = [0,0,0,0,0,0];
+function _nextSymbol() {
+  if (!_loadingSymbolEl) return;
+  _loadingSymbolEl.textContent = _loadingSymbols[Math.floor(Math.random() * _loadingSymbols.length)];
+}
 
-  const iv = setInterval(() => {
-    frame++;
-    tiles.forEach((t, i) => {
-      counters[i]++;
-      if (counters[i] >= speeds[i] / 16) {
-        counters[i] = 0;
-        const v = nums[Math.floor(Math.random() * nums.length)];
-        t.textContent = v;
-        t.style.transform = 'translateY(-3px)';
-        setTimeout(() => { t.style.transform = ''; }, 60);
-      }
-    });
-  }, 16);
+function showLoadingScreen() {
+  _loadingSymbolEl = document.getElementById('loadingSymbol');
+  _nextSymbol();
+  _loadingSymbolEl.addEventListener('animationiteration', _nextSymbol);
+  const screen = document.getElementById('loadingScreen');
+  screen.classList.remove('fade-out');
+  screen.style.opacity = '';
+  screen.style.display = 'flex';
+}
 
-  function hideLoading() {
-    clearInterval(iv);
-    const screen = document.getElementById('loadingScreen');
-    screen.classList.add('fade-out');
-    setTimeout(() => { screen.style.display = 'none'; }, 380);
+function hideLoadingScreen(cb) {
+  if (_loadingSymbolEl) {
+    _loadingSymbolEl.removeEventListener('animationiteration', _nextSymbol);
   }
+  const screen = document.getElementById('loadingScreen');
+  screen.classList.add('fade-out');
+  setTimeout(() => { screen.style.display = 'none'; if (cb) cb(); }, 380);
+}
 
-  document.fonts.ready.then(() => {
-    // Small minimum so the animation is actually seen
-    const minShow = 600;
-    const elapsed = performance.now();
-    const wait = Math.max(0, minShow - elapsed);
-    setTimeout(() => { hideLoading(); init(); initAdmin(); }, wait);
-  });
-})();
+showLoadingScreen();
+document.fonts.ready.then(() => {
+  const wait = Math.max(0, 700 - performance.now());
+  setTimeout(() => { hideLoadingScreen(() => { init(); initAdmin(); }); }, wait);
+});
