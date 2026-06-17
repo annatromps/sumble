@@ -13,6 +13,22 @@ function getDailySeed() {
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 }
 
+function getDailyNumber() {
+  const launch = new Date(2026, 5, 1); // June 1 2026 = Day 1
+  const now = new Date();
+  return Math.floor((now - launch) / 86400000) + 1;
+}
+
+function setDailyBadge(daily) {
+  const badge = document.getElementById('dailyBadge');
+  if (daily) {
+    badge.textContent = `Daily #${getDailyNumber()}`;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
 function getTodayKey() {
   const d = new Date();
   const y = d.getFullYear();
@@ -400,6 +416,7 @@ function init() {
 function startGame() {
   isInfinite = false;
   showInfiniteBanner(false);
+  setDailyBadge(true);
   showView('game');
   document.getElementById('timerBarWrap').style.display = '';
   document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
@@ -1017,6 +1034,7 @@ function startInfinite(seed) {
 
   showView('game');
   showInfiniteBanner(true);
+  setDailyBadge(false);
   document.getElementById('timerBarWrap').style.display = '';
   document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
   document.getElementById('pauseBtn').style.display = gameMode === 'countdown' ? '' : 'none';
@@ -1047,15 +1065,27 @@ function buildShareText() {
   const shareR = countdownResult || r;
 
   const d = new Date();
-  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 
   const history = loadHistory();
   const { streak } = calcStreak(history);
   const streakLine = streak > 1 ? `🔥 ${streak}-day streak\n` : '';
 
   let text;
-  if (shareR.mode === 'free' && !countdownResult) {
-    // Pure free-mode play — no countdown was done
+  if (isInfinite && infiniteSeed) {
+    // Infinite puzzle — invite others to try it
+    const resultLine = shareR.diff === 0
+      ? `✅ Target ${shareR.target} — solved!`
+      : `Got to ${shareR.target - shareR.diff}, target was ${shareR.target}`;
+    text = [
+      `🔢 Can you beat me on this Sumble puzzle?`,
+      '',
+      resultLine,
+      '',
+      `https://annatromps.github.io/sumble?p=${infiniteSeed}`,
+    ].join('\n');
+  } else if (shareR.mode === 'free' && !countdownResult) {
+    // Daily, free mode
     const freeTime = shareR.timeTaken != null
       ? (shareR.timeTaken >= 60
           ? ` in ${Math.floor(shareR.timeTaken/60)}m ${shareR.timeTaken%60}s`
@@ -1064,18 +1094,15 @@ function buildShareText() {
     const resultLine = shareR.diff === 0
       ? `✅ ${shareR.target} solved${freeTime}`
       : `❌ ${shareR.diff} away from ${shareR.target}${freeTime}`;
-    const baseUrl = isInfinite && infiniteSeed
-      ? `https://annatromps.github.io/sumble?p=${infiniteSeed}`
-      : 'https://annatromps.github.io/sumble';
     text = [
-      `Sumble ${isInfinite ? `Puzzle #${infiniteSeed}` : dateStr} (Free Time)`,
+      `Sumble Daily #${getDailyNumber()} — ${dateStr}`,
       '',
       resultLine,
       '',
-      `${streakLine}${baseUrl}`,
+      `${streakLine}https://annatromps.github.io/sumble`,
     ].join('\n');
   } else {
-    // Countdown result (possibly after continuing in free)
+    // Daily, countdown
     const pts = calcScore(shareR.diff, shareR.timeTaken, shareR.hints || 0);
     const hintTag = shareR.hints > 0 ? ` 💡×${shareR.hints}` : '';
     let resultLine;
@@ -1086,16 +1113,13 @@ function buildShareText() {
       resultLine = `❌ ${shareR.diff} away (${pts} pts)${hintTag}`;
     }
     const grid = shareR.grid || buildShareGrid(shareR.diff, shareR.timeTaken);
-    const baseUrl = isInfinite && infiniteSeed
-      ? `https://annatromps.github.io/sumble?p=${infiniteSeed}`
-      : 'https://annatromps.github.io/sumble';
     text = [
-      `Sumble ${isInfinite ? `Puzzle #${infiniteSeed}` : dateStr}`,
+      `Sumble Daily #${getDailyNumber()} — ${dateStr}`,
       '',
       resultLine,
       grid,
       '',
-      `${streakLine}${baseUrl}`,
+      `${streakLine}https://annatromps.github.io/sumble`,
     ].join('\n');
   }
 
