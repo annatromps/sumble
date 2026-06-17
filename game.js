@@ -1364,5 +1364,9 @@ function hideLoadingScreen(cb) {
 showLoadingScreen();
 document.fonts.ready.then(() => {
   const wait = Math.max(0, 700 - performance.now());
-  setTimeout(() => { hideLoadingScreen(() => { init(); initAdmin(); }); }, wait);
+  setTimeout(() => {
+    init();
+    initAdmin();
+    hideLoadingScreen();
+  }, wait);
 });
