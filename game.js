@@ -907,10 +907,8 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
 
   renderStats(history);
 
-  const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
-  if (solResult) {
-    solDiv.innerHTML = solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
-  }
+  solDiv.innerHTML = '';
+  solDiv.dataset.pending = '1';
   solDiv.style.display = 'none';
 
   // Show "continue in free" only when countdown ended without exact match
