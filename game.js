@@ -361,11 +361,20 @@ function showView(name) {
   if (streakBar) streakBar.style.display = name === 'game' ? 'none' : streakBar.dataset.shouldShow === 'true' ? 'flex' : 'none';
 }
 
+function getDailyPuzzleCached() {
+  const key = `sumble_puzzle_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(key);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+  const p = generatePuzzle(mulberry32(getDailySeed()));
+  try { localStorage.setItem(key, JSON.stringify(p)); } catch {}
+  return p;
+}
+
 function init() {
   todayKey = getTodayKey();
-  const seed = getDailySeed();
-  const rng = mulberry32(seed);
-  puzzle = generatePuzzle(rng);
+  puzzle = getDailyPuzzleCached();
   dailyTarget = puzzle.target;
 
   tiles = puzzle.tiles.map((t, i) => ({ ...t, id: i, used: false }));
@@ -378,8 +387,7 @@ function init() {
   modeLocked = false;
   countdownResult = null;
   hintsUsed = 0;
-  const solForHints = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
-  hintSolution = solForHints ? solForHints.steps : null;
+  hintSolution = undefined; // computed lazily on first hint request
 
   const dateStr = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -467,11 +475,8 @@ function restoreTodayResult(diff, storedGrid) {
 
   renderStats(history);
 
-  const solResult = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
-  if (solResult) {
-    solDiv.innerHTML = solResult.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
-  }
   solDiv.style.display = 'none';
+  solDiv.dataset.pending = '1'; // populated lazily when View Solution clicked
 
   window._lastResult = { diff, target: puzzle.target, playerBest: null, steps: [], timeTaken: null, grid: storedGrid, mode: gameMode };
 }
@@ -767,6 +772,10 @@ function resetPuzzle() {
 
 function getHint() {
   if (gameOver) return;
+  if (hintSolution === undefined) {
+    const sol = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
+    hintSolution = sol ? sol.steps : null;
+  }
   if (!hintSolution) { showToast('No hint available'); return; }
   if (hintsUsed >= MAX_HINTS) { showToast('No more hints'); return; }
 
@@ -1031,8 +1040,7 @@ function _startInfiniteWork(seed) {
   hintsUsed = 0;
   isInfinite = true;
   gameMode = infiniteMode;
-  const solForHints = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
-  hintSolution = solForHints ? solForHints.steps : null;
+  hintSolution = undefined; // computed lazily on first hint request
 
   document.getElementById('targetDisplay').textContent = puzzle.target;
   document.getElementById('backToResultRow').style.display = 'none';
@@ -1304,6 +1312,11 @@ function toggleSolution() {
   const solDiv = document.getElementById('resultSolution');
   const btn = document.getElementById('viewSolBtn');
   const hidden = solDiv.style.display === 'none';
+  if (hidden && solDiv.dataset.pending) {
+    delete solDiv.dataset.pending;
+    const sol = solveShort(puzzle.tiles.map(t => t.val), puzzle.target);
+    if (sol) solDiv.innerHTML = sol.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
+  }
   solDiv.style.display = hidden ? '' : 'none';
   btn.textContent = hidden ? 'Hide Solution' : 'View Solution';
 }
@@ -1352,7 +1365,7 @@ function hideLoadingScreen(cb) {
 
 showLoadingScreen();
 document.fonts.ready.then(() => {
-  const wait = Math.max(0, 700 - performance.now());
+  const wait = Math.max(0, 200 - performance.now());
   setTimeout(() => {
     init();
     initAdmin();
