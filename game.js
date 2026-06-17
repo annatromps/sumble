@@ -828,21 +828,24 @@ function submitAnswer() {
   document.getElementById('pauseBtn').style.display = 'none';
   document.getElementById('pauseModal').classList.remove('open');
 
-  const closest = currentNums.reduce((best, n) =>
+  const noMoves = steps.length === 0;
+  const closest = noMoves ? null : currentNums.reduce((best, n) =>
     Math.abs(n.val - puzzle.target) < Math.abs(best.val - puzzle.target) ? n : best,
     currentNums[0]
   );
-  const diff = Math.abs(closest.val - puzzle.target);
+  const diff = noMoves ? Infinity : Math.abs(closest.val - puzzle.target);
   const timeTaken = gameMode === 'countdown' ? 30 - timeLeft : freeTimeElapsed;
 
-  const grid = gameMode === 'countdown' ? buildShareGrid(diff, timeTaken) : null;
+  const finiteDiff = isFinite(diff) ? diff : 9999;
+  const grid = gameMode === 'countdown' ? buildShareGrid(finiteDiff, timeTaken) : null;
 
   // Save to history
-  const pts = calcScore(diff, timeTaken, hintsUsed);
-  const solvedInTime = diff === 0 && gameMode === 'countdown' && timeTaken <= 30;
-  recordResult(todayKey, diff, grid, pts, solvedInTime);
+  const pts = calcScore(finiteDiff, timeTaken, hintsUsed);
+  const solvedInTime = false; // can't solve without moves
+  if (!noMoves) recordResult(todayKey, finiteDiff, grid, pts, solvedInTime);
+  else recordResult(todayKey, finiteDiff, grid, 0, false);
 
-  showResult(closest.val, diff, timeTaken, grid, hintsUsed);
+  showResult(closest ? closest.val : null, finiteDiff, timeTaken, grid, hintsUsed);
   if (diff === 0 && typeof confetti === 'function') {
     confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
   }
@@ -870,7 +873,10 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   const timeStr = fmtTime(timeTaken);
 
   let scoreClass, emoji, headlineText, detailText;
-  if (diff === 0) {
+  if (playerBest === null) {
+    scoreClass = 'miss'; emoji = '😶'; headlineText = 'No moves';
+    detailText = 'No calculations made';
+  } else if (diff === 0) {
     scoreClass = 'exact'; emoji = '🎯'; headlineText = 'Exact';
     detailText = timeStr ? `Solved in ${timeStr}` : 'Solved it!';
   } else if (diff <= 5) {
@@ -887,13 +893,13 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   heroEl.className = 'result-hero result-hero--' + scoreClass;
   emojiEl.textContent = emoji;
   headline.textContent = headlineText;
-  const pts = calcScore(diff, timeTaken, hints);
+  const pts = playerBest === null ? 0 : calcScore(diff, timeTaken, hints);
   const hintNote = hints > 0 ? ` (${hints} hint${hints > 1 ? 's' : ''})` : '';
   if (isCountdown) {
     scoreEl.textContent = pts;
-    ptsEl.textContent = `pts${hintNote}`;
+    ptsEl.textContent = pts > 0 ? `pts${hintNote}` : '';
   } else {
-    scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
+    scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '—');
     ptsEl.textContent = hints > 0 ? `${hints} hint${hints > 1 ? 's' : ''} used` : '';
   }
   detail.textContent = detailText;
