@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -158,26 +158,32 @@
   <button class="back-nav-btn" onclick="viewCompletedPuzzle()">← View Completed Puzzle</button>
 
   <div class="result-card">
-    <div class="result-headline" id="resultHeadline"></div>
-    <div class="result-score" id="resultScore"></div>
-    <div class="result-pts" id="resultPts"></div>
-    <div class="result-detail" id="resultDetail"></div>
-    <div class="result-streak" id="resultStreak"></div>
-    <div class="result-stats" id="resultStats"></div>
-
-    <button class="btn btn-ghost" id="viewSolBtn" onclick="toggleSolution()" style="width:100%;margin-bottom:12px">View Solution</button>
-    <div class="result-solution" id="resultSolution"></div>
-
-    <div class="result-actions">
-      <div style="display:flex;gap:8px;width:100%">
-        <button class="btn btn-ghost" onclick="copyResult()" style="flex:1">Copy</button>
-        <button class="btn btn-primary" onclick="shareResult()" style="flex:1">Share</button>
-      </div>
-      <button class="btn btn-ghost" id="continueBtn" onclick="continueInFree()" style="display:none">Continue in Free Mode →</button>
+    <div class="result-hero" id="resultHero">
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-headline" id="resultHeadline"></div>
+      <div class="result-pts" id="resultPts"></div>
     </div>
 
-    <hr class="modal-divider" style="margin:20px 0 16px">
-    <button class="btn btn-primary" onclick="startInfinite()" style="width:100%">▶ Infinite Mode</button>
+    <div class="result-body">
+      <div class="result-detail" id="resultDetail"></div>
+      <div class="result-streak" id="resultStreak"></div>
+      <div class="result-stats" id="resultStats"></div>
+
+      <button class="btn btn-ghost" id="viewSolBtn" onclick="toggleSolution()" style="width:100%;margin-bottom:12px">View Solution</button>
+      <div class="result-solution" id="resultSolution"></div>
+
+      <div class="result-actions">
+        <div style="display:flex;gap:8px;width:100%">
+          <button class="btn btn-ghost" onclick="copyResult()" style="flex:1">Copy</button>
+          <button class="btn btn-primary" onclick="shareResult()" style="flex:1">Share</button>
+        </div>
+        <button class="btn btn-ghost" id="continueBtn" onclick="continueInFree()" style="display:none">Continue in Free Mode →</button>
+      </div>
+
+      <hr class="modal-divider" style="margin:20px 0 16px">
+      <button class="btn btn-primary" onclick="startInfinite()" style="width:100%">▶ Infinite Mode</button>
+    </div>
   </div>
 
 </div>
@@ -229,6 +235,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=15"></script>
+<script src="game.js?v=16"></script>
 </body>
 </html>

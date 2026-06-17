@@ -444,27 +444,35 @@ function restoreTodayResult(diff, storedGrid) {
   clearInterval(timerInterval);
   gameOver = true;
 
-  const headline = document.getElementById('resultHeadline');
-  const scoreEl  = document.getElementById('resultScore');
-  const ptsEl    = document.getElementById('resultPts');
-  const detail   = document.getElementById('resultDetail');
-  const streakEl = document.getElementById('resultStreak');
-  const solDiv   = document.getElementById('resultSolution');
+  const heroEl    = document.getElementById('resultHero');
+  const emojiEl   = document.getElementById('resultEmoji');
+  const headline  = document.getElementById('resultHeadline');
+  const scoreEl   = document.getElementById('resultScore');
+  const ptsEl     = document.getElementById('resultPts');
+  const detail    = document.getElementById('resultDetail');
+  const streakEl  = document.getElementById('resultStreak');
+  const solDiv    = document.getElementById('resultSolution');
 
-  let scoreClass, headlineText, detailText;
+  let scoreClass, emoji, headlineText, detailText;
   if (diff === 0) {
-    scoreClass = 'exact'; headlineText = '🎯 Exact';
-    detailText = 'You solved today\'s puzzle';
+    scoreClass = 'exact'; emoji = '🎯'; headlineText = 'Exact';
+    detailText = 'Solved it!';
     scoreEl.textContent = puzzle.target;
   } else {
+    const playerBest = puzzle.target - diff;
     scoreClass = diff <= 10 ? 'close' : 'miss';
-    headlineText = diff <= 5 ? '🔥 Very close' : diff <= 10 ? '👍 Close' : '😬 Not quite';
-    detailText = `${diff} away from ${puzzle.target}`;
-    scoreEl.textContent = puzzle.target - diff;
+    emoji = diff <= 5 ? '🔥' : diff <= 10 ? '👍' : '😬';
+    headlineText = diff <= 5 ? 'Very close' : diff <= 10 ? 'Close' : 'Not quite';
+    detailText = diff <= 10
+      ? `Reached ${playerBest} · ${diff} off target`
+      : `Best was ${playerBest} · ${diff} from target`;
+    scoreEl.textContent = playerBest;
   }
 
+  heroEl.className = 'result-hero result-hero--' + scoreClass;
+  emojiEl.textContent = emoji;
   headline.textContent = headlineText;
-  scoreEl.className = 'result-score ' + scoreClass;
+  scoreEl.className = 'result-score';
   detail.textContent = detailText;
   ptsEl.textContent = '';
 
@@ -834,42 +842,45 @@ function submitAnswer() {
 }
 
 function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
-  const headline = document.getElementById('resultHeadline');
-  const scoreEl  = document.getElementById('resultScore');
-  const ptsEl    = document.getElementById('resultPts');
-  const detail   = document.getElementById('resultDetail');
-  const streakEl = document.getElementById('resultStreak');
-  const solDiv   = document.getElementById('resultSolution');
+  const heroEl    = document.getElementById('resultHero');
+  const emojiEl   = document.getElementById('resultEmoji');
+  const headline  = document.getElementById('resultHeadline');
+  const scoreEl   = document.getElementById('resultScore');
+  const ptsEl     = document.getElementById('resultPts');
+  const detail    = document.getElementById('resultDetail');
+  const streakEl  = document.getElementById('resultStreak');
+  const solDiv    = document.getElementById('resultSolution');
 
   const isCountdown = gameMode === 'countdown';
   const fmtTime = (t) => {
     if (t == null) return '';
     if (!isCountdown) {
       const m = Math.floor(t / 60), s = t % 60;
-      return m > 0 ? ` in ${m}m ${s}s` : ` in ${t}s`;
+      return m > 0 ? `${m}m ${s}s` : `${t}s`;
     }
-    return t <= 30 ? ` in ${t}s` : ` (+${t - 30}s overtime)`;
+    return t <= 30 ? `${t}s` : `${t - 30}s overtime`;
   };
   const timeStr = fmtTime(timeTaken);
 
-  let scoreClass, headlineText, detailText;
+  let scoreClass, emoji, headlineText, detailText;
   if (diff === 0) {
-    scoreClass = 'exact'; headlineText = '🎯 Exact';
-    detailText = `Hit ${puzzle.target}${timeStr}`;
+    scoreClass = 'exact'; emoji = '🎯'; headlineText = 'Exact';
+    detailText = timeStr ? `Solved in ${timeStr}` : 'Solved it!';
   } else if (diff <= 5) {
-    scoreClass = 'close'; headlineText = '🔥 Very close';
-    detailText = `${playerBest}, ${diff} away${timeStr}`;
+    scoreClass = 'close'; emoji = '🔥'; headlineText = 'Very close';
+    detailText = `Reached ${playerBest} · ${diff} off target${timeStr ? ' · ' + timeStr : ''}`;
   } else if (diff <= 10) {
-    scoreClass = 'close'; headlineText = '👍 Close';
-    detailText = `${playerBest}, ${diff} away${timeStr}`;
+    scoreClass = 'close'; emoji = '👍'; headlineText = 'Close';
+    detailText = `Reached ${playerBest} · ${diff} off target${timeStr ? ' · ' + timeStr : ''}`;
   } else {
-    scoreClass = 'miss'; headlineText = '😬 Not quite';
-    detailText = `${playerBest}, ${diff} away from ${puzzle.target}${timeStr}`;
+    scoreClass = 'miss'; emoji = '😬'; headlineText = 'Not quite';
+    detailText = `Best was ${playerBest} · ${diff} from target${timeStr ? ' · ' + timeStr : ''}`;
   }
 
+  heroEl.className = 'result-hero result-hero--' + scoreClass;
+  emojiEl.textContent = emoji;
   headline.textContent = headlineText;
   scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
-  scoreEl.className = 'result-score ' + scoreClass;
   detail.textContent = detailText;
   const pts = calcScore(diff, timeTaken, hints);
   const hintNote = hints > 0 ? ` (${hints} hint${hints > 1 ? 's' : ''})` : '';
