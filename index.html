@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
 
@@ -103,17 +103,15 @@
 
   <div class="timer-bar-wrap" id="timerBarWrap">
     <div class="timer-label">
-      <span>Time</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span id="timerCount">30</span>
-        <div id="infiniteBanner" style="display:none">
-          <div class="inf-toggle">
-            <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
-            <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
-          </div>
+      <span class="timer-label-time"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time</span>
+      <div id="infiniteBanner" style="display:none">
+        <div class="inf-toggle">
+          <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
+          <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
         </div>
-        <button class="pause-btn" id="pauseBtn" onclick="pauseGame()" aria-label="Pause">⏸</button>
       </div>
+      <button class="pause-btn" id="pauseBtn" onclick="pauseGame()" aria-label="Pause">⏸</button>
+      <span id="timerCount" class="timer-count">30</span>
     </div>
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
   </div>
@@ -235,6 +233,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=19"></script>
+<script src="game.js?v=20"></script>
 </body>
 </html>
