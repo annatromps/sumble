@@ -417,7 +417,7 @@ function init() {
   // Already played today → skip start screen, go to results
   if (history[todayKey] !== undefined) {
     showView('result');
-    restoreTodayResult(history[todayKey].diff, history[todayKey].grid);
+    restoreTodayResult(history[todayKey].diff, history[todayKey].grid, history[todayKey].pts);
     return;
   }
 
@@ -440,7 +440,7 @@ function startGame() {
   }
 }
 
-function restoreTodayResult(diff, storedGrid) {
+function restoreTodayResult(diff, storedGrid, storedPts) {
   clearInterval(timerInterval);
   gameOver = true;
 
@@ -473,8 +473,14 @@ function restoreTodayResult(diff, storedGrid) {
   emojiEl.textContent = emoji;
   headline.textContent = headlineText;
   scoreEl.className = 'result-score';
-  detail.textContent = detailText;
-  ptsEl.textContent = '';
+  if (storedPts != null) {
+    scoreEl.textContent = storedPts;
+    ptsEl.textContent = 'pts';
+    detail.textContent = detailText;
+  } else {
+    detail.textContent = detailText;
+    ptsEl.textContent = '';
+  }
 
   const history = loadHistory();
   const { streak } = calcStreak(history);
@@ -880,11 +886,16 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   heroEl.className = 'result-hero result-hero--' + scoreClass;
   emojiEl.textContent = emoji;
   headline.textContent = headlineText;
-  scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
-  detail.textContent = detailText;
   const pts = calcScore(diff, timeTaken, hints);
   const hintNote = hints > 0 ? ` (${hints} hint${hints > 1 ? 's' : ''})` : '';
-  ptsEl.textContent = isCountdown ? `${pts} pts${hintNote}` : (hints > 0 ? `${hints} hint${hints > 1 ? 's' : ''} used` : '');
+  if (isCountdown) {
+    scoreEl.textContent = pts;
+    ptsEl.textContent = `pts${hintNote}`;
+  } else {
+    scoreEl.textContent = diff === 0 ? puzzle.target : (playerBest || '?');
+    ptsEl.textContent = hints > 0 ? `${hints} hint${hints > 1 ? 's' : ''} used` : '';
+  }
+  detail.textContent = detailText;
 
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
@@ -1326,7 +1337,9 @@ function toggleSolution() {
     if (sol) solDiv.innerHTML = sol.steps.map(s => `<div class="sol-line">${s}</div>`).join('');
   }
   solDiv.style.display = hidden ? '' : 'none';
-  btn.textContent = hidden ? 'Hide Solution' : 'View Solution';
+  const chevron = document.getElementById('viewSolChevron');
+  if (chevron) chevron.textContent = hidden ? '▴' : '▾';
+  btn.childNodes[0].textContent = hidden ? 'Hide Solution ' : 'View Solution ';
 }
 
 function adminToggleSolution() {
