@@ -355,7 +355,6 @@ function showView(name) {
   document.getElementById('startScreen').style.display = name === 'start'  ? '' : 'none';
   document.getElementById('gameView').style.display   = name === 'game'   ? 'flex' : 'none';
   document.getElementById('resultView').style.display = name === 'result' ? 'flex' : 'none';
-  document.getElementById('targetArea').style.display = name === 'game'   ? '' : 'none';
   // Hide streak bar during game to keep header height stable
   const streakBar = document.getElementById('streakBar');
   if (streakBar) streakBar.style.display = name === 'game' ? 'none' : streakBar.dataset.shouldShow === 'true' ? 'flex' : 'none';
@@ -1206,7 +1205,6 @@ function pauseGame() {
   paused = true;
   clearInterval(timerInterval);
   document.getElementById('gameView').style.visibility = 'hidden';
-  document.getElementById('targetArea').style.visibility = 'hidden';
   document.getElementById('pauseModal').classList.add('open');
 }
 
@@ -1214,7 +1212,6 @@ function resumeGame() {
   paused = false;
   document.getElementById('pauseModal').classList.remove('open');
   document.getElementById('gameView').style.visibility = '';
-  document.getElementById('targetArea').style.visibility = '';
   if (!gameOver && gameMode === 'countdown') startTimer();
 }
 

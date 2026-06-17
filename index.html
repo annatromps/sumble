@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
@@ -90,20 +90,6 @@
   </div>
 </header>
 
-<!-- ── Target (always visible during game + result) ── -->
-<div class="target-area" id="targetArea" style="display:none">
-  <div class="target-label-row">
-    <span class="target-label">Target</span>
-    <span class="daily-badge" id="dailyBadge" style="display:none"></span>
-  </div>
-  <div class="target-number" id="targetDisplay">—</div>
-  <div id="infiniteBanner" style="display:none;position:absolute;right:0;top:50%;transform:translateY(-50%)">
-    <div class="inf-toggle">
-      <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
-      <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── Game view ── -->
 <div id="gameView" style="display:none">
@@ -117,6 +103,12 @@
       <span>Time</span>
       <div style="display:flex;align-items:center;gap:10px">
         <span id="timerCount">30</span>
+        <div id="infiniteBanner" style="display:none">
+          <div class="inf-toggle">
+            <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
+            <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
+          </div>
+        </div>
         <button class="pause-btn" id="pauseBtn" onclick="pauseGame()" aria-label="Pause">⏸</button>
       </div>
     </div>
@@ -125,6 +117,10 @@
 
   <div class="workings-area">
     <div class="blackboard" id="blackboard">
+      <div class="blackboard-target">
+        <span id="targetDisplay">—</span>
+        <span class="daily-badge" id="dailyBadge" style="display:none"></span>
+      </div>
       <div class="blackboard-steps" id="stepsLog"></div>
       <div class="expression-display" id="exprDisplay">
         <span style="color:rgba(255,255,255,0.3);font-size:16px;font-family:'Caveat',cursive">tap a number to start…</span>
@@ -231,6 +227,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=13"></script>
+<script src="game.js?v=14"></script>
 </body>
 </html>
