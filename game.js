@@ -912,7 +912,7 @@ function showResult(playerBest, diff, timeTaken, grid, hints = 0) {
   solDiv.style.display = 'none';
 
   // Show "continue in free" only when countdown ended without exact match
-  const canContinue = gameMode === 'countdown' && diff > 0 && !countdownResult;
+  const canContinue = !isInfinite && gameMode === 'countdown' && diff > 0 && !countdownResult;
   document.getElementById('continueBtn').style.display = canContinue ? '' : 'none';
 
   // Lock in the countdown result the first time (before any free-mode continuation)

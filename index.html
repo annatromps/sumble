@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 
@@ -103,11 +103,13 @@
 
   <div class="timer-bar-wrap" id="timerBarWrap">
     <div class="timer-label">
-      <span class="timer-label-time"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time</span>
-      <div id="infiniteBanner" style="display:none">
-        <div class="inf-toggle">
-          <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
-          <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
+      <div class="timer-label-left">
+        <span class="timer-label-time"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time</span>
+        <div id="infiniteBanner" style="display:none">
+          <div class="inf-toggle">
+            <button class="inf-btn active" id="infBtnCountdown" onclick="switchInfiniteMode('countdown')">⏱</button>
+            <button class="inf-btn" id="infBtnFree" onclick="switchInfiniteMode('free')">∞</button>
+          </div>
         </div>
       </div>
       <button class="pause-btn" id="pauseBtn" onclick="pauseGame()" aria-label="Pause">⏸</button>
@@ -233,6 +235,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=22"></script>
+<script src="game.js?v=23"></script>
 </body>
 </html>
