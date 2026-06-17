@@ -923,6 +923,55 @@ h1 span { color: var(--accent); }
   flex-shrink: 0;
 }
 
+/* ── Loading screen ── */
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  transition: opacity 0.35s ease;
+}
+
+#loadingScreen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-title {
+  font-size: clamp(48px, 13vw, 72px);
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.loading-title span { color: var(--accent); }
+
+.loading-tiles {
+  display: flex;
+  gap: 8px;
+}
+
+.loading-tile {
+  width: 46px;
+  height: 54px;
+  background: var(--tile-bg);
+  border: 1.5px solid var(--tile-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  transition: transform 0.06s ease;
+}
+
 /* ── How-to-play modal ── */
 .modal-overlay {
   position: fixed;

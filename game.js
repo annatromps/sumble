@@ -1293,5 +1293,42 @@ function adminToggleSolution() {
   panel.style.display = 'block';
 }
 
-init();
-initAdmin();
+// ── Loading animation ──
+(function () {
+  const tiles = document.querySelectorAll('.loading-tile');
+  const nums = [1,2,3,4,5,6,7,8,9,10,25,50,75,100];
+  let frame = 0;
+
+  // Each tile cycles at a slightly different speed for a slot-machine feel
+  const speeds = [60, 75, 50, 90, 65, 80];
+  const counters = [0,0,0,0,0,0];
+
+  const iv = setInterval(() => {
+    frame++;
+    tiles.forEach((t, i) => {
+      counters[i]++;
+      if (counters[i] >= speeds[i] / 16) {
+        counters[i] = 0;
+        const v = nums[Math.floor(Math.random() * nums.length)];
+        t.textContent = v;
+        t.style.transform = 'translateY(-3px)';
+        setTimeout(() => { t.style.transform = ''; }, 60);
+      }
+    });
+  }, 16);
+
+  function hideLoading() {
+    clearInterval(iv);
+    const screen = document.getElementById('loadingScreen');
+    screen.classList.add('fade-out');
+    setTimeout(() => { screen.style.display = 'none'; }, 380);
+  }
+
+  document.fonts.ready.then(() => {
+    // Small minimum so the animation is actually seen
+    const minShow = 600;
+    const elapsed = performance.now();
+    const wait = Math.max(0, minShow - elapsed);
+    setTimeout(() => { hideLoading(); init(); initAdmin(); }, wait);
+  });
+})();
