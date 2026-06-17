@@ -1360,10 +1360,12 @@ function adminToggleSolution() {
 const _loadingSymbols = ['+', '−', '×', '÷', 'Σ', '∞', '√'];
 let _loadingSymbolEl = null;
 let _loadingSymbolIv = null;
+let _loadingSymbolIdx = 0;
 
 function _nextSymbol() {
   if (!_loadingSymbolEl) return;
-  _loadingSymbolEl.textContent = _loadingSymbols[Math.floor(Math.random() * _loadingSymbols.length)];
+  _loadingSymbolEl.textContent = _loadingSymbols[_loadingSymbolIdx % _loadingSymbols.length];
+  _loadingSymbolIdx++;
 }
 
 function showLoadingScreen() {
