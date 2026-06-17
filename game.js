@@ -393,7 +393,6 @@ function init() {
   updateExpr();
   updateStepsLog();
   document.getElementById('submitBtn').disabled = true;
-  document.getElementById('applyBtn').disabled = true;
 
   const history = loadHistory();
   const { streak, best } = calcStreak(history);
@@ -630,7 +629,9 @@ function selectTile(id) {
   // Can only add a number when expr is empty or last token is an op
   if (expr.length === 0 || (last && last.type === 'op')) {
     expr.push({ type: 'num', val: num.val, id: num.id });
-    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+    syncOpButtons(); renderTiles(); updateExpr();
+    // Auto-fire when we have num + op + num
+    if (expr.length >= 3) applyStep();
   }
 }
 
@@ -662,14 +663,9 @@ function selectOp(sym) {
   } else if (last.type === 'num') {
     expr.push({ type: 'op', sym });
   }
-  syncOpButtons(); updateExpr(); checkApplyReady();
+  syncOpButtons(); updateExpr();
 }
 
-function checkApplyReady() {
-  const last = expr[expr.length - 1];
-  const ready = expr.length >= 3 && last && last.type === 'num';
-  document.getElementById('applyBtn').disabled = !ready;
-}
 
 function updateExpr() {
   const disp = document.getElementById('exprDisplay');
@@ -716,14 +712,12 @@ function applyStep() {
   if (result === puzzle.target) {
     expr = [];
     updateExpr();
-    document.getElementById('applyBtn').disabled = true;
     setTimeout(() => submitAnswer(), 300);
   } else {
     // Auto-select the result tile as the first number of the next step
     expr = [{ type: 'num', val: result, id: newId }];
     updateOpButtons(true);
     updateExpr();
-    document.getElementById('applyBtn').disabled = true;
     renderTiles();
   }
 }
@@ -749,7 +743,6 @@ function undoStep() {
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
   renderTiles(); updateExpr(); updateStepsLog(); checkSubmit();
-  document.getElementById('applyBtn').disabled = true;
 }
 
 function deleteLast() {
@@ -760,13 +753,16 @@ function deleteLast() {
   syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
 }
 
-function clearWorking() {
+function resetPuzzle() {
+  if (gameOver) return;
   expr = [];
+  steps = [];
+  currentNums = tiles.map(t => ({ val: t.val, id: t.id }));
+  hintsUsed = 0;
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
   document.getElementById('deleteBtn').disabled = true;
-  renderTiles(); updateExpr();
-  document.getElementById('applyBtn').disabled = true;
+  renderTiles(); updateExpr(); updateStepsLog(); checkSubmit(); updateHintBtn();
 }
 
 function getHint() {
@@ -1042,7 +1038,6 @@ function _startInfiniteWork(seed) {
   document.getElementById('backToResultRow').style.display = 'none';
   renderTiles(); updateExpr(); updateStepsLog();
   document.getElementById('submitBtn').disabled = true;
-  document.getElementById('applyBtn').disabled = true;
   document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
   updateHintBtn();
 
@@ -1067,7 +1062,6 @@ function continueInFree() {
   document.getElementById('timerFill').style.display = 'none';
   startFreeTimer();
   document.getElementById('submitBtn').disabled = steps.length === 0;
-  document.getElementById('applyBtn').disabled = true;
   document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
   updateOpButtons(false);
   renderTiles(); updateExpr();
@@ -1240,10 +1234,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeHowTo();
     if (paused) resumeGame();
-  }
-  if (e.key === 'Enter') {
-    const applyBtn = document.getElementById('applyBtn');
-    if (applyBtn && !applyBtn.disabled) applyStep();
   }
   if (e.key === 'Backspace') {
     const deleteBtn = document.getElementById('deleteBtn');

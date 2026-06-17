@@ -504,27 +504,6 @@ h1 span { color: var(--accent); }
 }
 .op-btn:disabled { opacity: 0.3; cursor: default; }
 
-.apply-btn {
-  display: block;
-  width: 120px;
-  height: 56px;
-  margin: 0 auto;
-  font-family: 'Nunito', sans-serif;
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1;
-  color: #fff;
-  background: var(--accent);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  margin-bottom: 6px;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-.apply-btn:hover:not(:disabled) { background: #6355cc; }
-.apply-btn:disabled { opacity: 0.2; cursor: default; }
 
 .blackboard-steps:empty + .expression-display {
   border-top: none;
@@ -1197,7 +1176,7 @@ h1 span { color: var(--accent); }
 
   .ops-row { gap: 6px; margin-bottom: 6px; }
 
-  .apply-btn { height: 48px; margin-bottom: 4px; }
+
 
   .action-row { gap: 8px; margin-bottom: 4px; }
 

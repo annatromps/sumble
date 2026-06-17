@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -143,12 +143,11 @@
       <button class="op-btn" id="deleteBtn" onclick="deleteLast()" disabled
         style="font-size:18px">⌫</button>
     </div>
-    <button class="apply-btn" id="applyBtn" onclick="applyStep()" disabled>=</button>
   </div><!-- end ops-area -->
 
   <div class="action-row">
     <button class="btn btn-ghost" onclick="undoStep()">Undo</button>
-    <button class="btn btn-ghost" onclick="clearWorking()">Clear</button>
+    <button class="btn btn-ghost" onclick="resetPuzzle()">Reset</button>
     <button class="btn btn-hint" id="hintBtn" onclick="getHint()">💡 Hint (3)</button>
     <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit</button>
   </div>
@@ -232,6 +231,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=10"></script>
+<script src="game.js?v=11"></script>
 </body>
 </html>
