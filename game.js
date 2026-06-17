@@ -1345,7 +1345,7 @@ function adminToggleSolution() {
 }
 
 // ── Loading animation ──
-const _loadingSymbols = ['+', '−', '×', '÷', 'Σ', '∞', '²', '√'];
+const _loadingSymbols = ['+', '−', '×', '÷', 'Σ', '∞', '√'];
 let _loadingSymbolEl = null;
 let _loadingSymbolIv = null;
 
@@ -1357,7 +1357,7 @@ function _nextSymbol() {
 function showLoadingScreen() {
   _loadingSymbolEl = document.getElementById('loadingSymbol');
   _nextSymbol();
-  _loadingSymbolIv = setInterval(_nextSymbol, 360);
+  _loadingSymbolIv = setInterval(_nextSymbol, 367);
   const screen = document.getElementById('loadingScreen');
   screen.classList.remove('fade-out');
   screen.style.opacity = '';
