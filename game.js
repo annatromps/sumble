@@ -1324,8 +1324,9 @@ function adminToggleSolution() {
 }
 
 // ── Loading animation ──
-const _loadingSymbols = ['+', '−', '×', '÷', '=', 'Σ', '∞', '²', '√'];
+const _loadingSymbols = ['+', '−', '×', '÷', 'Σ', '∞', '²', '√'];
 let _loadingSymbolEl = null;
+let _loadingSymbolIv = null;
 
 function _nextSymbol() {
   if (!_loadingSymbolEl) return;
@@ -1335,7 +1336,7 @@ function _nextSymbol() {
 function showLoadingScreen() {
   _loadingSymbolEl = document.getElementById('loadingSymbol');
   _nextSymbol();
-  _loadingSymbolEl.addEventListener('animationiteration', _nextSymbol);
+  _loadingSymbolIv = setInterval(_nextSymbol, 360);
   const screen = document.getElementById('loadingScreen');
   screen.classList.remove('fade-out');
   screen.style.opacity = '';
@@ -1343,9 +1344,7 @@ function showLoadingScreen() {
 }
 
 function hideLoadingScreen(cb) {
-  if (_loadingSymbolEl) {
-    _loadingSymbolEl.removeEventListener('animationiteration', _nextSymbol);
-  }
+  clearInterval(_loadingSymbolIv);
   const screen = document.getElementById('loadingScreen');
   screen.classList.add('fade-out');
   setTimeout(() => { screen.style.display = 'none'; if (cb) cb(); }, 380);
