@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Sumble">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -82,7 +82,10 @@
     <h1 onclick="goHome()" style="cursor:pointer">SUM<span>BLE</span></h1>
     <button class="help-btn" onclick="openHowTo()" aria-label="How to play">?</button>
   </div>
-  <div class="game-date" id="dateDisplay"></div>
+  <div class="header-date-row">
+    <span class="daily-badge" id="dailyBadge" style="display:none"></span>
+    <div class="game-date" id="dateDisplay"></div>
+  </div>
   <div class="streak-bar" id="streakBar" style="display:none">
     <span>Streak</span>
     <span class="streak-value" id="streakValue">0</span>
@@ -117,13 +120,12 @@
 
   <div class="workings-area">
     <div class="blackboard" id="blackboard">
-      <div class="blackboard-target">
-        <span id="targetDisplay">—</span>
-        <span class="daily-badge" id="dailyBadge" style="display:none"></span>
-      </div>
-      <div class="blackboard-steps" id="stepsLog"></div>
-      <div class="expression-display" id="exprDisplay">
-        <span style="color:rgba(255,255,255,0.3);font-size:16px;font-family:'Caveat',cursive">tap a number to start…</span>
+      <div class="blackboard-target">Target = <span id="targetDisplay">—</span></div>
+      <div class="blackboard-lower">
+        <div class="blackboard-steps" id="stepsLog"></div>
+        <div class="expression-display" id="exprDisplay">
+          <span style="color:rgba(255,255,255,0.3);font-size:16px;font-family:'Caveat',cursive">tap a number to start…</span>
+        </div>
       </div>
     </div>
   </div>
@@ -227,6 +229,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="game.js?v=14"></script>
+<script src="game.js?v=15"></script>
 </body>
 </html>
