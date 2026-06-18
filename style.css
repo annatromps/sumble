@@ -1017,7 +1017,7 @@ h1 span { color: var(--accent); }
   align-items: center;
   justify-content: center;
   opacity: 0;
-  animation: symbol-cycle 2.45s step-end infinite;
+  animation: symbol-cycle 2.45s linear infinite;
 }
 .loading-symbol span:nth-child(1) { animation-delay: 0s; }
 .loading-symbol span:nth-child(2) { animation-delay: 0.35s; }
@@ -1028,9 +1028,8 @@ h1 span { color: var(--accent); }
 .loading-symbol span:nth-child(7) { animation-delay: 2.10s; }
 
 @keyframes symbol-cycle {
-  0%    { opacity: 1; }
-  14.3% { opacity: 0; }
-  100%  { opacity: 0; }
+  0%, 14.2%  { opacity: 1; }
+  14.3%, 100% { opacity: 0; }
 }
 
 @keyframes loading-bounce {
