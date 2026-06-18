@@ -428,16 +428,21 @@ function startGame() {
   isInfinite = false;
   showInfiniteBanner(false);
   setDailyBadge('daily');
-  showView('game');
-  document.getElementById('timerBarWrap').style.display = '';
-  document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
-  document.getElementById('pauseBtn').style.display =
-    gameMode === 'countdown' ? '' : 'none';
-  if (gameMode === 'countdown') {
-    startTimer();
-  } else {
-    startFreeTimer();
-  }
+  showLoadingScreen();
+  setTimeout(() => {
+    showView('game');
+    document.getElementById('timerBarWrap').style.display = '';
+    document.getElementById('timerFill').style.display = gameMode === 'countdown' ? '' : 'none';
+    document.getElementById('pauseBtn').style.display =
+      gameMode === 'countdown' ? '' : 'none';
+    hideLoadingScreen(() => {
+      if (gameMode === 'countdown') {
+        startTimer();
+      } else {
+        startFreeTimer();
+      }
+    });
+  }, 0);
 }
 
 function restoreTodayResult(diff, storedGrid, storedPts) {
@@ -633,7 +638,7 @@ function selectTile(id) {
   const idx = expr.findIndex(t => t.type === 'num' && t.id === id);
   if (idx !== -1) {
     expr = expr.slice(0, idx);
-    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+    syncOpButtons(); renderTiles(); updateExpr();
     return;
   }
 
@@ -641,7 +646,7 @@ function selectTile(id) {
   const last = expr[expr.length - 1];
   if (expr.length === 1 && last.type === 'num') {
     expr[0] = { type: 'num', val: num.val, id: num.id };
-    syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+    syncOpButtons(); renderTiles(); updateExpr();
     return;
   }
 
@@ -769,7 +774,7 @@ function deleteLast() {
   const removed = expr[expr.length - 1];
   expr = expr.slice(0, -1);
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
-  syncOpButtons(); renderTiles(); updateExpr(); checkApplyReady();
+  syncOpButtons(); renderTiles(); updateExpr();
 }
 
 function resetPuzzle() {
