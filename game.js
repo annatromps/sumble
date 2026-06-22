@@ -331,6 +331,7 @@ let infiniteSeed = null;
 let gameMode = 'countdown'; // 'countdown' | 'free'
 let modeLocked = false;
 let countdownResult = null; // locked-in countdown score, preserved if player continues in free
+const FREE_STATE_PREFIX = 'sumble_free_state_';
 let hintSolution = null;   // steps array from solver, used for hint reveals
 let hintsUsed = 0;
 const MAX_HINTS = 3;
@@ -412,6 +413,37 @@ function init() {
   if (urlSeed) {
     startInfinite(parseInt(urlSeed, 10));
     return;
+  }
+
+  // In-progress free mode continuation → resume
+  const savedFree = localStorage.getItem(FREE_STATE_PREFIX + todayKey);
+  if (savedFree) {
+    try {
+      const s = JSON.parse(savedFree);
+      gameMode = 'free';
+      steps = s.steps;
+      currentNums = s.currentNums;
+      tiles = s.tiles;
+      hintsUsed = s.hintsUsed || 0;
+      freeTimeElapsed = s.freeTimeElapsed || 0;
+      countdownResult = s.countdownResult || null;
+      modeLocked = true;
+      gameOver = false;
+      expr = [];
+      isInfinite = false;
+      showInfiniteBanner(false);
+      setDailyBadge('daily');
+      showView('game');
+      document.getElementById('timerBarWrap').style.display = '';
+      document.getElementById('timerFill').style.display = 'none';
+      document.getElementById('pauseBtn').style.display = 'none';
+      document.getElementById('submitBtn').disabled = steps.length === 0;
+      document.querySelectorAll('.op-btn').forEach(b => { b.classList.remove('active'); b.disabled = false; });
+      updateOpButtons(false);
+      renderTiles(); updateExpr(); updateStepsLog(); updateHintBtn();
+      startFreeTimer();
+      return;
+    } catch {}
   }
 
   // Already played today → skip start screen, go to results
@@ -732,6 +764,7 @@ function applyStep() {
 
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   renderTiles(); updateStepsLog(); checkSubmit();
+  saveFreeState();
 
   if (result === puzzle.target) {
     expr = [];
@@ -767,6 +800,7 @@ function undoStep() {
   document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
   updateOpButtons(false);
   renderTiles(); updateExpr(); updateStepsLog(); checkSubmit();
+  saveFreeState();
 }
 
 function deleteLast() {
@@ -787,6 +821,7 @@ function resetPuzzle() {
   updateOpButtons(false);
   document.getElementById('deleteBtn').disabled = true;
   renderTiles(); updateExpr(); updateStepsLog(); checkSubmit(); updateHintBtn();
+  saveFreeState();
 }
 
 function getHint() {
@@ -824,6 +859,7 @@ function updateHintBtn() {
 let frozenTimerText = '0', frozenTimerBar = '0%';
 
 function submitAnswer() {
+  clearFreeState();
   clearInterval(timerInterval);
   gameOver = true;
   frozenTimerText = document.getElementById('timerCount').textContent;
@@ -1091,6 +1127,20 @@ function _startInfiniteWork(seed) {
   });
 }
 
+function saveFreeState() {
+  if (isInfinite || gameMode !== 'free' || gameOver) return;
+  try {
+    localStorage.setItem(FREE_STATE_PREFIX + todayKey, JSON.stringify({
+      steps, currentNums, tiles, hintsUsed, freeTimeElapsed,
+      countdownResult
+    }));
+  } catch {}
+}
+
+function clearFreeState() {
+  localStorage.removeItem(FREE_STATE_PREFIX + todayKey);
+}
+
 function continueInFree() {
   gameMode = 'free';
   gameOver = false;
@@ -1105,6 +1155,7 @@ function continueInFree() {
   updateOpButtons(false);
   renderTiles(); updateExpr();
   showView('game');
+  saveFreeState();
 }
 
 function buildShareText() {
@@ -1334,6 +1385,7 @@ function adminLogin() {
 
 function adminReset() {
   localStorage.removeItem(STORAGE_KEY);
+  clearFreeState();
   location.reload();
 }
 
@@ -1389,4 +1441,8 @@ document.fonts.ready.then(() => {
     initAdmin();
     hideLoadingScreen();
   }, wait);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveFreeState();
 });
