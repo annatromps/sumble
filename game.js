@@ -859,6 +859,22 @@ function updateHintBtn() {
 let frozenTimerText = '0', frozenTimerBar = '0%';
 
 function submitAnswer() {
+  // Auto-apply any complete in-progress expression before submitting
+  const last = expr[expr.length - 1];
+  if (expr.length >= 3 && last && last.type === 'num') {
+    const evalResult = evaluateExpr(expr);
+    if (!evalResult.error && evalResult.val > 0) {
+      const usedNums = expr.filter(t => t.type === 'num');
+      const exprStr = expr.map(t => t.type === 'num' ? t.val : t.sym).join(' ');
+      const result = evalResult.val;
+      steps.push({ usedNums, result, snapshot: { nums: [...currentNums] }, stepStr: `${exprStr} = ${result}` });
+      const usedIds = new Set(usedNums.map(n => n.id));
+      currentNums = currentNums.filter(n => !usedIds.has(n.id));
+      currentNums.push({ val: result, id: Date.now() });
+    }
+    expr = [];
+  }
+
   clearFreeState();
   clearInterval(timerInterval);
   gameOver = true;
